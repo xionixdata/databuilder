@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiberOps ISP Suite - Smarter Operations, Stronger Networks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#050c09',
+                        darkCard: '#0a1a13',
+                        darkBorder: '#133524',
+                        neonGreen: {
+                            DEFAULT: '#00ff88',
+                            50: '#e6fffa',
+                            400: '#34d399',
+                            500: '#00ff88',
+                            600: '#059669',
+                            700: '#047857'
+                        },
+                        cyberDark: '#020604'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'neon': '0 0 25px rgba(0, 255, 136, 0.25)',
+                        'neon-lg': '0 0 50px rgba(0, 255, 136, 0.35)',
+                        'card': '0 15px 35px rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #050c09;
+            color: #f0fdf4;
+            overflow-x: hidden;
+        }
+        .glow-bg {
+            background: radial-gradient(circle at 50% 10%, rgba(0, 255, 136, 0.12) 0%, rgba(5, 12, 9, 0) 70%);
+        }
+    </style>
+</head>
+<body class="bg-darkBg text-emerald-50 min-h-screen flex flex-col selection:bg-neonGreen selection:text-darkBg">
+
+    <header class="sticky top-0 z-50 bg-darkBg/90 backdrop-blur-md border-b border-darkBorder">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-neonGreen/10 border border-neonGreen/40 flex items-center justify-center text-neonGreen shadow-neon">
+                    <i class="fa-solid fa-network-wired text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                        FiberOps <span class="text-xs bg-neonGreen text-darkBg px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ISP SUITE</span>
+                    </span>
+                    <span class="block text-[10px] tracking-widest text-emerald-400 uppercase font-semibold">SMARTER OPERATIONS, STRONGER NETWORKS</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-emerald-200">
+                <a href="#features" class="hover:text-neonGreen transition">Features</a>
+                <a href="#architecture" class="hover:text-neonGreen transition">Architecture</a>
+                <a href="#dashboard-preview" class="hover:text-neonGreen transition">Dashboard</a>
+                <a href="#contact" class="hover:text-neonGreen transition">Contact</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <div class="hidden lg:flex items-center space-x-2 bg-emerald-950/80 border border-emerald-800 text-emerald-300 px-3 py-1.5 rounded-full text-xs font-semibold">
+                    <i class="fa-solid fa-shield-check text-neonGreen"></i>
+                    <span>100% Virus-Free · Safe & Verified</span>
+                </div>
+                <button onclick="openModal()" class="bg-neonGreen hover:bg-neonGreen/90 text-darkBg font-bold px-5 py-2.5 rounded-xl transition shadow-neon flex items-center space-x-2 text-sm">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <span>Get Suite</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative pt-16 pb-20 px-4 sm:px-6 lg:px-8 glow-bg text-center">
+        <div class="max-w-5xl mx-auto relative z-10">
+            <div class="inline-flex items-center space-x-2 bg-neonGreen/10 border border-neonGreen/30 px-4 py-1.5 rounded-full text-neonGreen text-xs font-bold mb-6 tracking-wide uppercase">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Smarter Operations, Stronger Networks</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-tight mb-6">
+                All-in-One Platform for<br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonGreen via-emerald-300 to-teal-400">ISP Billing, CRM & Network Operations</span>
+            </h1>
+
+            <p class="text-lg sm:text-2xl text-emerald-200/80 max-w-2xl mx-auto font-medium mb-8 tracking-wide">
+                Automate &nbsp;·&nbsp; Manage &nbsp;·&nbsp; Grow
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-16">
+                <button onclick="openModal()" class="bg-neonGreen hover:bg-emerald-400 text-darkBg font-extrabold px-8 py-4 rounded-2xl transition shadow-neon-lg flex items-center space-x-3 text-base">
+                    <span>Get Your Copy Today</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <a href="mailto:xionix555@protonmail.com" class="bg-darkCard hover:bg-darkBorder border border-emerald-800 text-white font-bold px-8 py-4 rounded-2xl transition flex items-center space-x-3 text-base">
+                    <i class="fa-solid fa-envelope text-neonGreen"></i>
+                    <span>xionix555@protonmail.com</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="dashboard-preview" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-darkCard p-3 sm:p-5 rounded-3xl shadow-2xl border-2 border-emerald-800/60 relative overflow-hidden">
+                <!-- Mac style bar -->
+                <div class="flex items-center justify-between pb-3 mb-3 border-b border-emerald-900/50 px-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                        <span class="text-xs text-emerald-400 font-mono ml-2">FiberOps Enterprise OS v4.2</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-xs text-emerald-300">
+                        <span class="bg-emerald-950 px-2.5 py-1 rounded border border-emerald-800"><i class="fa-solid fa-circle text-neonGreen text-[8px] animate-pulse"></i> Node Cluster Active</span>
+                        <span class="hidden sm:inline">Uptime: 99.99%</span>
+                    </div>
+                </div>
+
+                <!-- Inner App Interface -->
+                <div class="bg-cyberDark rounded-2xl p-4 sm:p-6 text-left border border-emerald-900/40 grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Sidebar Mockup -->
+                    <div class="hidden lg:block space-y-2 border-r border-emerald-900/40 pr-4">
+                        <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-3">ISP CORE</div>
+                        <a href="#" class="flex items-center space-x-3 bg-neonGreen text-darkBg px-3 py-2.5 rounded-xl font-bold text-xs shadow-neon">
+                            <i class="fa-solid fa-chart-line"></i><span>Overview Dashboard</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 text-emerald-300 hover:bg-emerald-950 px-3 py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-users"></i><span>Subscriber Base</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 text-emerald-300 hover:bg-emerald-950 px-3 py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-file-invoice-dollar"></i><span>Auto Billing & Tax</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 text-emerald-300 hover:bg-emerald-950 px-3 py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-network-wired"></i><span>Bandwidth & Nodes</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 text-emerald-300 hover:bg-emerald-950 px-3 py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-headset"></i><span>CRM Ticketing</span>
+                        </a>
+                        <a href="#" class="flex items-center space-x-3 text-emerald-300 hover:bg-emerald-950 px-3 py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-shield-halved text-neonGreen"></i><span>Virus-Free Security</span>
+                        </a>
+                    </div>
+
+                    <!-- Main Dashboard Content -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-darkCard p-4 rounded-xl border border-emerald-900/60">
+                                <span class="text-[11px] text-emerald-400 font-semibold block uppercase">Active Subscribers</span>
+                                <div class="text-2xl font-extrabold text-white mt-1">12,480</div>
+                                <span class="text-xs text-neonGreen font-medium"><i class="fa-solid fa-arrow-trend-up"></i> +14.2% this month</span>
+                            </div>
+                            <div class="bg-darkCard p-4 rounded-xl border border-emerald-900/60">
+                                <span class="text-[11px] text-emerald-400 font-semibold block uppercase">Monthly Revenue</span>
+                                <div class="text-2xl font-extrabold text-white mt-1">₹48,20,500</div>
+                                <span class="text-xs text-neonGreen font-medium"><i class="fa-solid fa-check-circle"></i> 98.4% collection rate</span>
+                            </div>
+                            <div class="bg-darkCard p-4 rounded-xl border border-emerald-900/60">
+                                <span class="text-[11px] text-emerald-400 font-semibold block uppercase">Network Bandwidth</span>
+                                <div class="text-2xl font-extrabold text-white mt-1">42.8 Gbps</div>
+                                <span class="text-xs text-amber-400 font-medium">Optimal Load (68%)</span>
+                            </div>
+                        </div>
+
+                        <!-- Graph & Analytics Widget -->
+                        <div class="bg-darkCard p-5 rounded-xl border border-emerald-900/60">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-sm font-bold text-white">Real-Time Traffic Throughput (Gbps)</span>
+                                <span class="text-xs bg-emerald-950 text-neonGreen px-2.5 py-1 rounded border border-emerald-800">Live Telemetry</span>
+                            </div>
+                            <div class="h-32 flex items-end justify-between gap-1 pt-4 border-b border-emerald-900/50 px-2">
+                                <div class="w-full bg-neonGreen/20 hover:bg-neonGreen rounded-t h-16 transition"></div>
+                                <div class="w-full bg-neonGreen/30 hover:bg-neonGreen rounded-t h-24 transition"></div>
+                                <div class="w-full bg-neonGreen/40 hover:bg-neonGreen rounded-t h-20 transition"></div>
+                                <div class="w-full bg-neonGreen/60 hover:bg-neonGreen rounded-t h-32 transition"></div>
+                                <div class="w-full bg-neonGreen/50 hover:bg-neonGreen rounded-t h-28 transition"></div>
+                                <div class="w-full bg-neonGreen/70 hover:bg-neonGreen rounded-t h-24 transition"></div>
+                                <div class="w-full bg-neonGreen rounded-t h-36 transition shadow-neon"></div>
+                                <div class="w-full bg-neonGreen/80 hover:bg-neonGreen rounded-t h-30 transition"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-emerald-400 mt-2 font-mono">
+                                <span>00:00</span><span>04:00</span><span>08:00</span><span>12:00</span><span>16:00</span><span>20:00</span><span>Now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-4">Built Specifically for Modern ISPs</h2>
+            <p class="text-emerald-200/80 text-lg">Every tool you need to streamline billing, handle trouble tickets, and monitor fiber infrastructure.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-darkCard p-8 rounded-2xl border border-emerald-900/60 shadow-card hover:border-neonGreen/60 transition duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-neonGreen/10 border border-neonGreen/30 text-neonGreen flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Subscriber Management</h3>
+                <p class="text-emerald-200/70 leading-relaxed text-sm">Easily manage & grow your subscriber base with automated PPPoE/IPoE provisioning, plan upgrades, and instant activation.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-darkCard p-8 rounded-2xl border border-emerald-900/60 shadow-card hover:border-neonGreen/60 transition duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-neonGreen/10 border border-neonGreen/30 text-neonGreen flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Automated Billing & Accounting</h3>
+                <p class="text-emerald-200/70 leading-relaxed text-sm">Fast, flexible, error-free invoicing & billing with payment gateway integrations, automated reminders, and tax ledgers.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-darkCard p-8 rounded-2xl border border-emerald-900/60 shadow-card hover:border-neonGreen/60 transition duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-neonGreen/10 border border-neonGreen/30 text-neonGreen flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">CRM & Support System</h3>
+                <p class="text-emerald-200/70 leading-relaxed text-sm">Ticketing, profitability analysis, trouble-tickets, and customer loyalty tracking built to resolve complaints in minutes.</p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="bg-darkCard p-8 rounded-2xl border border-emerald-900/60 shadow-card hover:border-neonGreen/60 transition duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-neonGreen/10 border border-neonGreen/30 text-neonGreen flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-tower-broadcast"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Network Operations</h3>
+                <p class="text-emerald-200/70 leading-relaxed text-sm">Monitor node status, bandwidth usage, OLT signal attenuation, and uptime in real time with automated alert triggers.</p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="bg-darkCard p-8 rounded-2xl border border-emerald-900/60 shadow-card hover:border-neonGreen/60 transition duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-neonGreen/10 border border-neonGreen/30 text-neonGreen flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-shield-virus"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Secure & Reliable</h3>
+                <p class="text-emerald-200/70 leading-relaxed text-sm">100% Virus-Free · Safe & Verified installer package with robust database encryption, local backups, and zero data leakage.</p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="bg-darkCard p-8 rounded-2xl border border-emerald-900/60 shadow-card hover:border-neonGreen/60 transition duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-neonGreen/10 border border-neonGreen/30 text-neonGreen flex items-center justify-center text-2xl font-bold mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Built for Growth</h3>
+                <p class="text-emerald-200/70 leading-relaxed text-sm">Scalable architecture designed for startup micro-ISPs to tier-1 enterprise broadband providers handling millions of subscribers.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 bg-darkCard border-y border-emerald-900/60 my-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="flex items-center justify-center space-x-4 p-4">
+                <div class="w-12 h-12 rounded-xl bg-neonGreen/10 text-neonGreen flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                </div>
+                <div class="text-left">
+                    <h4 class="text-white font-bold">Working Offline / Online Sync</h4>
+                    <p class="text-xs text-emerald-400">Never lose billing data during downtime</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-4 p-4 md:border-x border-emerald-900/60">
+                <div class="w-12 h-12 rounded-xl bg-neonGreen/10 text-neonGreen flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                <div class="text-left">
+                    <h4 class="text-white font-bold">High-Speed Cloud Sync</h4>
+                    <p class="text-xs text-emerald-400">Lightning fast telemetry and reporting</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-4 p-4">
+                <div class="w-12 h-12 rounded-xl bg-neonGreen/10 text-neonGreen flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-shield-check"></i>
+                </div>
+                <div class="text-left">
+                    <h4 class="text-white font-bold">100% Virus-Free · Safe & Verified</h4>
+                    <p class="text-xs text-emerald-400">Guaranteed clean executable binaries</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <div class="bg-gradient-to-r from-emerald-950 via-darkCard to-emerald-950 border border-neonGreen/40 rounded-3xl p-10 sm:p-14 shadow-neon relative overflow-hidden">
+            <div class="absolute -right-16 -bottom-16 opacity-10 text-9xl text-neonGreen">
+                <i class="fa-solid fa-network-wired"></i>
+            </div>
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-4">Supercharge Your ISP Today</h2>
+            <p class="text-emerald-200/80 max-w-xl mx-auto mb-8">Join hundreds of growing internet service providers relying on FiberOps ISP Suite for seamless automation.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="openModal()" class="bg-neonGreen hover:bg-emerald-400 text-darkBg font-extrabold px-8 py-4 rounded-2xl transition shadow-neon-lg flex items-center space-x-3 text-base">
+                    <span>Get Your Copy Today</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="bg-cyberDark border-t border-emerald-950 pt-16 pb-12 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-neonGreen/10 border border-neonGreen/40 flex items-center justify-center text-neonGreen">
+                            <i class="fa-solid fa-network-wired text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-xl font-extrabold text-white">FiberOps ISP Suite</span>
+                            <span class="block text-[10px] tracking-widest text-emerald-400 uppercase font-semibold">SMARTER OPERATIONS, STRONGER NETWORKS</span>
+                        </div>
+                    </div>
+                    <p class="text-emerald-200/60 text-sm max-w-sm mb-6">
+                        The ultimate all-in-one platform engineered for ISP billing, subscriber CRM, and real-time network node monitoring.
+                    </p>
+                    <div class="inline-flex items-center space-x-2 bg-emerald-950 border border-emerald-800 text-emerald-300 px-3.5 py-1.5 rounded-full text-xs font-semibold">
+                        <i class="fa-solid fa-shield-check text-neonGreen"></i>
+                        <span>100% Virus-Free · Safe & Verified</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-neonGreen font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5 text-sm text-emerald-200/70">
+                        <li><a href="#features" class="hover:text-neonGreen transition">Features & Modules</a></li>
+                        <li><a href="#architecture" class="hover:text-neonGreen transition">Network Architecture</a></li>
+                        <li><a href="#dashboard-preview" class="hover:text-neonGreen transition">Live Telemetry Preview</a></li>
+                        <li><a href="#" onclick="openModal(); return false;" class="hover:text-neonGreen transition">Download Suite</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-neonGreen font-bold text-sm uppercase tracking-wider mb-4">Direct Contact</h4>
+                    <ul class="space-y-2.5 text-sm text-emerald-200/70">
+                        <li class="flex items-center space-x-2">
+                            <i class="fa-solid fa-envelope text-neonGreen"></i>
+                            <a href="mailto:xionix555@protonmail.com" class="text-neonGreen hover:underline font-bold">xionix555@protonmail.com</a>
+                        </li>
+                        <li class="text-xs text-emerald-400 pt-1">
+                            <i class="fa-solid fa-lock text-neonGreen mr-1"></i> End-to-end encrypted support
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-emerald-950 flex flex-col sm:flex-row justify-between items-center text-xs text-emerald-200/50">
+                <p>&copy; 2026 Xionix555. All rights reserved.</p>
+                <p class="mt-2 sm:mt-0">Contact Email: <a href="mailto:xionix555@protonmail.com" class="text-neonGreen font-bold hover:underline">xionix555@protonmail.com</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="downloadModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-darkCard rounded-3xl max-w-md w-full p-6 sm:p-8 border border-emerald-800 text-white relative shadow-2xl">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-emerald-400 hover:text-white w-8 h-8 rounded-full bg-emerald-950 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-12 h-12 rounded-2xl bg-neonGreen/10 border border-neonGreen/40 flex items-center justify-center text-neonGreen text-xl mb-4">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+            </div>
+
+            <h3 class="text-2xl font-extrabold mb-2">Download FiberOps ISP Suite</h3>
+            <p class="text-emerald-200/70 text-sm mb-6">Get the official 100% Virus-Free verified installer package for Windows & Linux servers.</p>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center space-x-3 p-3 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs">
+                    <i class="fa-solid fa-shield-check text-neonGreen text-lg"></i>
+                    <div>
+                        <p class="font-bold text-white">100% Virus-Free · Safe & Verified</p>
+                        <p class="text-[10px] text-emerald-400">SHA-256 secure signed executable</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="simulateDownload(this)" class="w-full bg-neonGreen hover:bg-emerald-400 text-darkBg font-extrabold py-3.5 rounded-xl transition shadow-neon text-sm flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download FiberOps Suite v4.2</span>
+                </button>
+                <p class="text-center text-[11px] text-emerald-400">Need installation assistance? Contact <a href="mailto:xionix555@protonmail.com" class="text-neonGreen font-bold underline">xionix555@protonmail.com</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('downloadModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('downloadModal').classList.add('hidden');
+        }
+
+        function simulateDownload(btn) {
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Downloading Safe Package...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Download Complete & Verified!';
+                btn.classList.remove('bg-neonGreen');
+                btn.classList.add('bg-emerald-600', 'text-white');
+                setTimeout(() => {
+                    closeModal();
+                    btn.innerHTML = '<i class="fa-solid fa-download"></i> Download FiberOps Suite v4.2';
+                    btn.classList.remove('bg-emerald-600', 'text-white');
+                    btn.classList.add('bg-neonGreen');
+                }, 2000);
+            }, 1500);
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('downloadModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

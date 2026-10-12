@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dukaan Khata - Shop Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            900: '#0b2b1d',
+                            800: '#113824',
+                            700: '#1a4c33',
+                            600: '#266144'
+                        },
+                        amberGold: {
+                            500: '#e6a738',
+                            600: '#cc922b',
+                            400: '#f5b041'
+                        },
+                        creamBg: '#f9f6f0'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f9f6f0;
+            color: #1a1a1a;
+        }
+        .custom-shadow {
+            box-shadow: 0 20px 40px -15px rgba(11, 43, 29, 0.15);
+        }
+        .laptop-shadow {
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+        }
+    </style>
+</head>
+<body class="bg-creamBg min-h-screen flex flex-col antialiased selection:bg-amberGold-500 selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-[#f9f6f0]/95 backdrop-blur-md border-b border-forest-900/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amberGold-500 flex items-center justify-center text-forest-900 shadow-md">
+                    <i class="fa-solid fa-bag-shopping text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-extrabold tracking-tight text-forest-900">Dukaan Khata</span>
+                    <span class="block text-[10px] font-bold tracking-widest text-amberGold-600 uppercase">SHOP MANAGER</span>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-6 text-sm font-semibold text-forest-900">
+                <a href="#features" class="hover:text-amberGold-600 transition">Features</a>
+                <a href="#dashboard" class="hover:text-amberGold-600 transition">Dashboard Preview</a>
+                <a href="#benefits" class="hover:text-amberGold-600 transition">Why Us</a>
+                <div class="flex items-center space-x-2 bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full text-xs font-bold border border-emerald-300">
+                    <i class="fa-solid fa-shield-check text-emerald-600"></i>
+                    <span>100% Virus-Free · Safe & Verified</span>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="openDownloadModal()" class="bg-forest-900 hover:bg-forest-800 text-amberGold-400 font-bold px-5 py-2.5 rounded-xl transition shadow-lg flex items-center space-x-2 text-sm">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download App</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="pt-12 pb-8 px-4 sm:px-6 lg:px-8 text-center max-w-5xl mx-auto">
+        <div class="inline-flex items-center space-x-2 bg-amberGold-500/15 border border-amberGold-500/30 px-4 py-1.5 rounded-full text-amberGold-600 text-xs font-bold mb-6">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Ultimate Retail & Inventory Assistant</span>
+        </div>
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-forest-900 tracking-tight leading-tight mb-6">
+            Manage Your Shop.<br/>
+            <span class="text-amberGold-600">Grow Your Business.</span>
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto font-medium mb-10">
+            All-in-one solution for billing, stock, customers, expenses & more. Designed for high speed and absolute privacy.
+        </p>
+
+        <!-- Feature Badges Row -->
+        <div class="flex flex-wrap justify-center gap-3 sm:gap-4 mb-14">
+            <div class="flex items-center space-x-2 bg-forest-900 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
+                <div class="w-7 h-7 rounded-lg bg-amberGold-500 text-forest-900 flex items-center justify-center"><i class="fa-solid fa-chart-pie text-xs"></i></div>
+                <span>Smart Dashboard</span>
+            </div>
+            <div class="flex items-center space-x-2 bg-forest-900 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
+                <div class="w-7 h-7 rounded-lg bg-amberGold-500 text-forest-900 flex items-center justify-center"><i class="fa-solid fa-file-invoice-dollar text-xs"></i></div>
+                <span>GST Billing</span>
+            </div>
+            <div class="flex items-center space-x-2 bg-forest-900 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
+                <div class="w-7 h-7 rounded-lg bg-amberGold-500 text-forest-900 flex items-center justify-center"><i class="fa-solid fa-boxes-stacked text-xs"></i></div>
+                <span>Stock Management</span>
+            </div>
+            <div class="flex items-center space-x-2 bg-forest-900 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
+                <div class="w-7 h-7 rounded-lg bg-amberGold-500 text-forest-900 flex items-center justify-center"><i class="fa-solid fa-users text-xs"></i></div>
+                <span>Customer & Udhar Khata</span>
+            </div>
+            <div class="flex items-center space-x-2 bg-forest-900 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md">
+                <div class="w-7 h-7 rounded-lg bg-amberGold-500 text-forest-900 flex items-center justify-center"><i class="fa-solid fa-wallet text-xs"></i></div>
+                <span>Profit & Reports</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto mb-20">
+        <div class="bg-forest-900 p-3 sm:p-5 rounded-3xl laptop-shadow border-4 border-forest-800 relative overflow-hidden">
+            <!-- Laptop screen bezel simulation -->
+            <div class="bg-gray-900 rounded-2xl overflow-hidden border border-gray-700 flex flex-col lg:flex-row text-left">
+                
+                <!-- Sidebar -->
+                <div class="w-full lg:w-64 bg-forest-900 p-5 border-r border-forest-800 flex flex-col justify-between shrink-0">
+                    <div>
+                        <div class="flex items-center space-x-2 mb-6">
+                            <div class="w-7 h-7 rounded-lg bg-amberGold-500 flex items-center justify-center text-forest-900 font-bold text-xs"><i class="fa-solid fa-bag-shopping"></i></div>
+                            <div>
+                                <h4 class="text-white font-bold text-sm leading-none">Dukaan Khata</h4>
+                                <span class="text-[9px] text-amberGold-500 font-bold uppercase tracking-wider">SHOP MANAGER</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 text-xs font-semibold">
+                            <a href="#" class="flex items-center space-x-3 bg-amberGold-500 text-forest-900 px-3 py-2.5 rounded-xl font-bold shadow">
+                                <i class="fa-solid fa-house-chimney w-4"></i><span>Dashboard</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-file-lines w-4"></i><span>GST Billing</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-box w-4"></i><span>Stock</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-address-book w-4"></i><span>Udhar Khata</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-users w-4"></i><span>Customers</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-triangle-exclamation w-4 text-red-400"></i><span>Alerts <span class="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full ml-auto">0</span></span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-chart-line w-4"></i><span>Profit & Loss</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-receipt w-4"></i><span>Expenses</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-user-tie w-4"></i><span>Suppliers & Staff</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 text-gray-300 hover:text-white px-3 py-2.5 rounded-xl transition">
+                                <i class="fa-solid fa-wand-magic-sparkles w-4 text-amberGold-400"></i><span>AI Assistant</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-forest-800 text-[11px] text-emerald-400 flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Works offline - Data stored on this device</span>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard View Inside Mockup -->
+                <div class="flex-1 bg-[#fbf9f4] p-4 sm:p-6 text-gray-800">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-4 border-b border-gray-200 gap-3">
+                        <div>
+                            <h2 class="text-xl font-extrabold text-forest-900">Dashboard</h2>
+                            <p class="text-xs text-gray-500">Today's overview</p>
+                        </div>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:w-48">
+                                <input type="text" placeholder="Search products, Customers..." class="w-full text-xs bg-white border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-amberGold-500">
+                            </div>
+                            <button class="bg-forest-900 text-amberGold-400 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1">
+                                <i class="fa-solid fa-floppy-disk"></i><span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Today's Sales</span>
+                            <div class="text-lg font-extrabold text-forest-900 mt-1">₹9,000.00</div>
+                            <span class="text-[11px] text-gray-500">3 invoice(s)</span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">This Month's Sales</span>
+                            <div class="text-lg font-extrabold text-forest-900 mt-1">₹10,124.00</div>
+                            <span class="text-[11px] text-gray-500">5 invoice(s)</span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Udhar Outstanding</span>
+                            <div class="text-lg font-extrabold text-emerald-600 mt-1">₹0.00</div>
+                            <span class="text-[11px] text-gray-500">across 6 customers</span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Low Stock Items</span>
+                            <div class="text-lg font-extrabold text-amber-600 mt-1">1</div>
+                            <span class="text-[11px] text-amber-600 font-medium">need to-order</span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Expiring / Expired</span>
+                            <div class="text-lg font-extrabold text-amber-600 mt-1">1</div>
+                            <span class="text-[11px] text-gray-500">check Alerts page</span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Month's Expenses</span>
+                            <div class="text-lg font-extrabold text-gray-800 mt-1">₹300.00</div>
+                            <span class="text-[11px] text-gray-500">all categories</span>
+                        </div>
+                    </div>
+
+                    <!-- Net Profit Banner -->
+                    <div class="bg-white p-3.5 rounded-xl border border-gray-200 shadow-sm mb-4">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Net Profit (Est. This Month)</span>
+                        <div class="text-xl font-extrabold text-emerald-600 mt-1">₹1,420.00</div>
+                        <span class="text-[11px] text-gray-500">sales - cost - expenses</span>
+                    </div>
+
+                    <!-- Bottom Chart & Products Row -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                        <div class="lg:col-span-2 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-forest-900">Sales - Last 14 Days</span>
+                                <span class="text-[10px] text-gray-400">May 08 - May 18</span>
+                            </div>
+                            <div class="h-28 flex items-end justify-between px-2 pt-4 relative border-b border-l border-gray-200">
+                                <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+                                    <div class="border-b border-dashed border-gray-400 w-full"></div>
+                                    <div class="border-b border-dashed border-gray-400 w-full"></div>
+                                    <div class="border-b border-dashed border-gray-400 w-full"></div>
+                                </div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-12"></div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-20"></div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-16"></div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-24"></div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-14"></div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-28"></div>
+                                <div class="w-3 bg-emerald-500 rounded-t h-18"></div>
+                            </div>
+                            <div class="flex justify-between text-[9px] text-gray-400 mt-1">
+                                <span>May 08</span><span>May 09</span><span>May 12</span><span>May 15</span><span>May 18</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <span class="text-xs font-bold text-forest-900 block mb-3">Top Products (This Month)</span>
+                            <div class="space-y-2.5 text-xs">
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1"><span class="font-medium">Wheat Fiber 10kg</span><span class="text-gray-500">12 sold</span></div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div class="bg-forest-900 h-full w-4/5 rounded-full"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1"><span class="font-medium">Rice 5kg</span><span class="text-gray-500">8 sold</span></div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div class="bg-forest-900 h-full w-3/5 rounded-full"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1"><span class="font-medium">Mustard Oil 1L</span><span class="text-gray-500">6 sold</span></div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div class="bg-forest-900 h-full w-2/5 rounded-full"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="text-center max-w-3xl mx-auto mb-14">
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-forest-900 mb-4">Why Shop Owners Choose Dukaan Khata</h2>
+            <p class="text-gray-600 font-medium">Engineered for absolute ease, bulletproof data protection, and zero maintenance friction.</p>
+        </div>
+
+        <div id="benefits" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="bg-white p-8 rounded-2xl custom-shadow border border-forest-900/5 hover:-translate-y-1 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-amberGold-500/20 text-amberGold-600 flex items-center justify-center text-2xl font-bold mb-6">
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <h3 class="text-xl font-bold text-forest-900 mb-3">Easy to Use</h3>
+                <p class="text-gray-600 leading-relaxed">Your data stays safe on your device. Designed with intuitive menus so any shopkeeper can start billing in under 2 minutes.</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-white p-8 rounded-2xl custom-shadow border border-forest-900/5 hover:-translate-y-1 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-amberGold-500/20 text-amberGold-600 flex items-center justify-center text-2xl font-bold mb-6">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-forest-900 mb-3">Secure & Reliable</h3>
+                <p class="text-gray-600 leading-relaxed">No extra cost, no hidden charges. Absolute transparency with 100% Virus-Free verification and safe local storage architecture.</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-white p-8 rounded-2xl custom-shadow border border-forest-900/5 hover:-translate-y-1 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-amberGold-500/20 text-amberGold-600 flex items-center justify-center text-2xl font-bold mb-6">
+                    <i class="fa-solid fa-cloud-slash"></i>
+                </div>
+                <h3 class="text-xl font-bold text-forest-900 mb-3">Works Offline</h3>
+                <p class="text-gray-600 leading-relaxed">Your data stays safe on your device. Zero internet dependency—keep billing customers even when Wi-Fi or mobile data goes down.</p>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="bg-white p-8 rounded-2xl custom-shadow border border-forest-900/5 hover:-translate-y-1 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-amberGold-500/20 text-amberGold-600 flex items-center justify-center text-2xl font-bold mb-6">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h3 class="text-xl font-bold text-forest-900 mb-3">Ideal For All Businesses</h3>
+                <p class="text-gray-600 leading-relaxed">Perfect for Small Business Owners, Retailers, Distributors, Computer/IT Stores, Accountants, Telecom/networking businesses & more.</p>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="bg-white p-8 rounded-2xl custom-shadow border border-forest-900/5 hover:-translate-y-1 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-amberGold-500/20 text-amberGold-600 flex items-center justify-center text-2xl font-bold mb-6">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <h3 class="text-xl font-bold text-forest-900 mb-3">Save Hours Every Day</h3>
+                <p class="text-gray-600 leading-relaxed">Automate ledger calculations and inventory deductions. Stop wasting time with manual paperwork and manage customer records effortlessly.</p>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="bg-white p-8 rounded-2xl custom-shadow border border-forest-900/5 hover:-translate-y-1 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-amberGold-500/20 text-amberGold-600 flex items-center justify-center text-2xl font-bold mb-6">
+                    <i class="fa-solid fa-file-shield"></i>
+                </div>
+                <h3 class="text-xl font-bold text-forest-900 mb-3">100% Virus-Free</h3>
+                <p class="text-gray-600 leading-relaxed">Strictly verified, safe, clean installation package ensuring your business laptop or desktop remains protected from malware.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="bg-amberGold-500 rounded-3xl p-8 sm:p-12 text-forest-900 shadow-2xl flex flex-col lg:flex-row items-center justify-between relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                <i class="fa-solid fa-cash-register"></i>
+            </div>
+            
+            <div class="mb-8 lg:mb-0 max-w-2xl text-center lg:text-left">
+                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
+                    Take Control. Save Time. Increase Profit.
+                </h2>
+                <p class="text-lg font-bold text-forest-900/80">
+                    Dukaan Khata – Your Business, Our Solution.
+                </p>
+            </div>
+
+            <div>
+                <button onclick="openDownloadModal()" class="bg-forest-900 hover:bg-forest-800 text-amberGold-400 font-extrabold px-8 py-4 rounded-2xl transition shadow-xl text-lg flex items-center space-x-3">
+                    <span>Get Started Today!</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-forest-900 text-white mt-auto pt-16 pb-12 border-t border-forest-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-amberGold-500 flex items-center justify-center text-forest-900">
+                            <i class="fa-solid fa-bag-shopping text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-2xl font-extrabold tracking-tight text-white">Dukaan Khata</span>
+                            <span class="block text-[10px] font-bold tracking-widest text-amberGold-500 uppercase">SHOP MANAGER</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-sm mb-6">
+                        The ultimate shop management software designed for maximum efficiency, local device privacy, and error-free billing.
+                    </p>
+                    <div class="inline-flex items-center space-x-2 bg-emerald-900/60 border border-emerald-500/40 text-emerald-300 px-3.5 py-1.5 rounded-full text-xs font-bold">
+                        <i class="fa-solid fa-shield-check text-emerald-400"></i>
+                        <span>100% Virus-Free · Safe & Verified</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-amberGold-500 font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5 text-sm text-gray-300">
+                        <li><a href="#features" class="hover:text-amberGold-400 transition">Features</a></li>
+                        <li><a href="#dashboard" class="hover:text-amberGold-400 transition">Dashboard Preview</a></li>
+                        <li><a href="#benefits" class="hover:text-amberGold-400 transition">Why Choose Us</a></li>
+                        <li><a href="#" onclick="openDownloadModal(); return false;" class="hover:text-amberGold-400 transition">Download Installer</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-amberGold-500 font-bold text-sm uppercase tracking-wider mb-4">Support & Contact</h4>
+                    <ul class="space-y-2.5 text-sm text-gray-300">
+                        <li class="flex items-center space-x-2">
+                            <i class="fa-solid fa-envelope text-amberGold-500"></i>
+                            <a href="mailto:xionix555@protonmail.com" class="hover:underline text-amberGold-400">xionix555@protonmail.com</a>
+                        </li>
+                        <li class="flex items-center space-x-2 pt-2 text-xs text-gray-400">
+                            <i class="fa-solid fa-lock text-emerald-400"></i>
+                            <span>End-to-end encrypted support</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-forest-800 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400">
+                <p>&copy; 2026 xionix555. All rights reserved.</p>
+                <p class="mt-2 sm:mt-0">Contact Support: <a href="mailto:xionix555@protonmail.com" class="text-amberGold-400 font-semibold hover:underline">xionix555@protonmail.com</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="downloadModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-forest-900 relative shadow-2xl transform transition-all">
+            <button onclick="closeDownloadModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-12 h-12 rounded-2xl bg-amberGold-500 flex items-center justify-center text-forest-900 font-bold text-xl mb-4">
+                <i class="fa-solid fa-download"></i>
+            </div>
+
+            <h3 class="text-2xl font-extrabold mb-2">Download Dukaan Khata</h3>
+            <p class="text-gray-600 text-sm mb-6">Get the official 100% Virus-Free verified installer for Windows & Mac.</p>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center space-x-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+                    <div>
+                        <p class="font-bold">100% Virus-Free · Safe & Verified</p>
+                        <p class="text-[10px] text-emerald-700 font-normal">Scanned with latest anti-malware signatures</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="simulateDownload()" class="w-full bg-forest-900 hover:bg-forest-800 text-amberGold-400 font-bold py-3.5 rounded-xl transition shadow-lg text-sm flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-cloud-arrow-down"></i>
+                    <span>Download Shop Manager v3.2 (.exe)</span>
+                </button>
+                <p class="text-center text-[11px] text-gray-500">Need help? Contact <a href="mailto:xionix555@protonmail.com" class="text-amberGold-600 font-bold underline">xionix555@protonmail.com</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDownloadModal() {
+            document.getElementById('downloadModal').classList.remove('hidden');
+        }
+
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').classList.add('hidden');
+        }
+
+        function simulateDownload() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Downloading Safe Package...';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Download Complete!';
+                btn.classList.remove('bg-forest-900', 'text-amberGold-400');
+                btn.classList.add('bg-emerald-600', 'text-white');
+                setTimeout(() => {
+                    closeDownloadModal();
+                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Download Shop Manager v3.2 (.exe)';
+                    btn.classList.remove('bg-emerald-600', 'text-white');
+                    btn.classList.add('bg-forest-900', 'text-amberGold-400');
+                }, 2000);
+            }, 1500);
+        }
+
+        // Close modal on background click
+        window.onclick = function(event) {
+            const modal = document.getElementById('downloadModal');
+            if (event.target == modal) {
+                closeDownloadModal();
+            }
+        }
+    </script>
+</body>
+</html>
