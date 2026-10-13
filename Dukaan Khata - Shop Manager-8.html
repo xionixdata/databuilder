@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Dukaan Khata — Shop Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --ink:#122A22;
+  --ink-2:#173B30;
+  --paper:#F2EFE3;
+  --paper-2:#E9E4D2;
+  --card:#FFFFFF;
+  --line:#DAD4BE;
+  --gold:#D79A34;
+  --gold-dark:#B87E22;
+  --maroon:#9C3D34;
+  --teal:#2F6F6B;
+  --ok:#2F7D53;
+  --warn:#C08A1E;
+  --danger:#B23B33;
+  --text:#1B241F;
+  --text-soft:#5B6459;
+  --text-faint:#8A9186;
+  --radius:10px;
+  --shadow:0 1px 2px rgba(18,42,34,.06), 0 4px 16px rgba(18,42,34,.06);
+  --sidebar-w:236px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--paper);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+h1,h2,h3,.display{font-family:'Fraunces',serif;letter-spacing:-0.01em;}
+.num, .mono{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+a{color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+
+/* ---------- App shell ---------- */
+#app{display:flex;min-height:100vh;}
+
+/* Sidebar — ledger spine */
+#sidebar{
+  width:var(--sidebar-w);
+  background:linear-gradient(180deg,var(--ink-2),var(--ink));
+  color:#EDEBDD;
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;
+  z-index:40;
+  transition:transform .25s ease;
+  border-right:3px solid #0C1D17;
+}
+#sidebar::before{
+  content:"";position:absolute;left:14px;top:0;bottom:0;width:2px;
+  background:repeating-linear-gradient(180deg,rgba(215,154,52,.35) 0 6px, transparent 6px 14px);
+}
+.brand{
+  padding:22px 20px 16px 30px;
+  font-family:'Fraunces',serif;font-weight:600;font-size:20px;color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.brand small{display:block;font-family:'Inter';font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-top:3px;}
+#navlist{list-style:none;margin:0;padding:10px 10px 10px 24px;overflow-y:auto;flex:1;}
+.navitem{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;margin:2px 0;border-radius:8px;
+  font-size:13.5px;font-weight:500;color:#CFD6C9;
+  cursor:pointer;user-select:none;position:relative;
+}
+.navitem .ic{width:18px;text-align:center;font-size:15px;opacity:.9;}
+.navitem:hover{background:rgba(255,255,255,.06);color:#fff;}
+.navitem.active{background:var(--gold);color:#1B241F;font-weight:600;}
+.navitem .badge{
+  margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:20px;min-width:16px;text-align:center;
+}
+.navitem.active .badge{background:var(--maroon);color:#fff;}
+#sidebar-foot{padding:14px 20px 18px 30px;font-size:11px;color:#8FA098;border-top:1px solid rgba(255,255,255,.08);}
+
+/* Main */
+#main{margin-left:var(--sidebar-w);flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh;}
+#topbar{
+  position:sticky;top:0;z-index:30;
+  background:var(--paper);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;
+  padding:12px 22px;
+}
+#hamburger{display:none;background:none;border:none;font-size:20px;color:var(--ink);padding:4px;}
+#pagetitle{font-family:'Fraunces',serif;font-size:20px;font-weight:600;}
+#pagesub{font-size:12px;color:var(--text-soft);margin-top:1px;}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:10px;}
+#globalsearch{
+  background:var(--card);border:1px solid var(--line);border-radius:8px;
+  padding:8px 12px;font-size:13px;width:220px;
+}
+.icon-btn{
+  background:var(--card);border:1px solid var(--line);border-radius:8px;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;position:relative;
+}
+.icon-btn .dot{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;}
+#save-box{display:flex;align-items:center;gap:6px;}
+#save-filename{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dot-inline{width:7px;height:7px;border-radius:50%;background:var(--danger);display:none;flex:0 0 auto;}
+@media(max-width:760px){ #save-filename{display:none;} }
+
+#content{padding:20px 22px 90px;flex:1;}
+.page{display:none;}
+.page.active{display:block;animation:fadein .18s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* Cards / grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px;box-shadow:var(--shadow);}
+.kpi .lbl{font-size:11.5px;color:var(--text-soft);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.kpi .val{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;margin-top:6px;}
+.kpi .sub{font-size:11.5px;color:var(--text-faint);margin-top:3px;}
+.kpi.warn .val{color:var(--warn);}
+.kpi.danger .val{color:var(--danger);}
+.kpi.ok .val{color:var(--ok);}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:16px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap;}
+.card-head h3{margin:0;font-size:15.5px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--ink);color:#fff;border:none;border-radius:8px;
+  padding:9px 14px;font-size:13px;font-weight:600;
+}
+.btn.gold{background:var(--gold);color:#1B241F;}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+.btn.danger{background:var(--danger);color:#fff;}
+.btn.ok{background:var(--ok);color:#fff;}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:6px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn.wa{background:#25D366;color:#08341c;}
+.iconbtn{background:none;border:none;font-size:15px;padding:5px 7px;border-radius:6px;color:var(--text-soft);}
+.iconbtn:hover{background:var(--paper-2);color:var(--text);}
+
+/* Forms */
+label{font-size:12px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px;}
+input,select,textarea{
+  width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;
+  font-size:13.5px;font-family:inherit;background:#fff;color:var(--text);
+}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:0;border-color:var(--gold);}
+.field{margin-bottom:12px;}
+.fieldrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+
+/* Table */
+.tablewrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{
+  text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--text-soft);padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap;
+}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle;}
+tbody tr:hover{background:var(--paper-2);}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.pill.ok{background:#E4F2E8;color:var(--ok);}
+.pill.warn{background:#FBF0DA;color:var(--warn);}
+.pill.danger{background:#F8E3E1;color:var(--danger);}
+.pill.info{background:#E1EDEC;color:var(--teal);}
+.rowactions{display:flex;gap:4px;}
+.pager{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:10px;font-size:12.5px;color:var(--text-soft);}
+
+/* Modal */
+.modal-bg{position:fixed;inset:0;background:rgba(18,26,20,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
+.modal-bg.open{display:flex;}
+.modal{background:#fff;border-radius:12px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.modal.wide{max-width:880px;}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2;}
+.modal-head h3{margin:0;font-family:'Fraunces',serif;}
+.modal-body{padding:18px;}
+.modal-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;}
+.closex{background:none;border:none;font-size:20px;color:var(--text-soft);}
+
+.toast-wrap{position:fixed;bottom:18px;right:18px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;box-shadow:var(--shadow);animation:fadein .2s ease;}
+.toast.err{background:var(--danger);}
+.toast.ok{background:var(--ok);}
+
+.empty{text-align:center;padding:40px 20px;color:var(--text-faint);}
+.empty .big{font-size:32px;margin-bottom:8px;}
+
+#login-overlay{position:fixed;inset:0;background:linear-gradient(180deg,var(--ink-2),var(--ink));display:none;align-items:center;justify-content:center;z-index:500;padding:20px;}
+#login-overlay.open{display:flex;}
+.login-card{background:#fff;border-radius:14px;padding:34px 28px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
+.login-card h2{font-family:'Fraunces',serif;margin:0 0 4px;font-size:22px;}
+.login-card p{color:var(--text-soft);font-size:13px;margin:0 0 16px;}
+.login-card input{margin-bottom:10px;}
+.login-err{color:var(--danger);font-size:12.5px;margin-top:8px;min-height:16px;}
+
+/* Mobile bottom nav */
+#bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:40;padding:6px 4px;box-shadow:0 -2px 10px rgba(0,0,0,.06);}
+#bottomnav .bn-scroll{display:flex;overflow-x:auto;gap:4px;}
+.bn-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 12px;font-size:9.5px;font-weight:600;color:var(--text-soft);border-radius:8px;white-space:nowrap;}
+.bn-item .ic{font-size:17px;}
+.bn-item.active{color:var(--gold-dark);}
+
+@media(max-width:880px){
+  #sidebar{transform:translateX(-100%);}
+  #sidebar.open{transform:translateX(0);}
+  #main{margin-left:0;}
+  #hamburger{display:block;}
+  #bottomnav{display:block;}
+  #content{padding-bottom:110px;}
+  .sidebar-scrim{content:"";position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:39;display:none;}
+  .sidebar-scrim.open{display:block;}
+}
+
+/* Calendar */
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.calcell{min-height:74px;border:1px solid var(--line);border-radius:8px;padding:5px 6px;font-size:11.5px;background:#fff;cursor:pointer;}
+.calcell.other{opacity:.35;}
+.calcell.today{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);}
+.calcell .d{font-weight:700;font-size:12px;}
+.calcell .rem{background:var(--gold);color:#1B241F;font-size:9.5px;border-radius:4px;padding:1px 4px;margin-top:3px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dow{text-align:center;font-size:10.5px;font-weight:700;color:var(--text-soft);text-transform:uppercase;}
+
+/* AI chat */
+#ai-chat{display:flex;flex-direction:column;height:60vh;background:#fff;border:1px solid var(--line);border-radius:var(--radius);}
+#ai-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:80%;padding:10px 13px;border-radius:12px;font-size:13.5px;line-height:1.5;}
+.msg.user{align-self:flex-end;background:var(--ink);color:#fff;border-bottom-right-radius:3px;}
+.msg.ai{align-self:flex-start;background:var(--paper-2);color:var(--text);border-bottom-left-radius:3px;white-space:pre-wrap;}
+#ai-inputrow{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);}
+#ai-inputrow input{flex:1;}
+.chip{display:inline-block;background:var(--paper-2);border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12px;margin:0 6px 6px 0;cursor:pointer;}
+
+.section-note{font-size:12px;color:var(--text-soft);background:var(--paper-2);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap;}
+.tab{padding:9px 14px;font-size:13px;font-weight:600;color:var(--text-soft);border-bottom:2px solid transparent;cursor:pointer;}
+.tab.active{color:var(--ink);border-color:var(--gold);}
+.hint{font-size:11px;color:var(--text-faint);margin-top:3px;}
+
+#reminder-popup-wrap{position:fixed;bottom:80px;right:18px;z-index:150;display:flex;flex-direction:column-reverse;gap:8px;max-width:300px;pointer-events:none;}
+#reminder-popup-wrap .rem-popup{pointer-events:auto;}
+.bell-wrap{position:relative;}
+.bell-panel{position:absolute;top:46px;right:0;width:320px;max-height:440px;overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 34px rgba(18,42,34,.18);z-index:160;display:none;}
+.bell-panel.open{display:block;}
+.bell-panel .bp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-soft);padding:12px 14px 6px;}
+.bell-panel .bp-item{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:13px;}
+.bell-panel .bp-item .bp-main{flex:1;min-width:0;}
+.bell-panel .bp-item .bp-main .t{font-weight:600;font-size:13px;}
+.bell-panel .bp-item .bp-main .d{font-size:11px;color:var(--text-soft);}
+.bell-panel .bp-foot{padding:10px 14px;text-align:center;}
+.bell-panel .bp-empty{padding:14px;text-align:center;color:var(--text-faint);font-size:12.5px;}
+.rem-popup{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:12px 14px;box-shadow:var(--shadow);animation:fadein .2s ease;}
+.rem-popup .t{font-weight:700;font-size:13px;}
+.rem-popup .d{font-size:12px;color:var(--text-soft);margin-top:2px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="sidebar-scrim" id="scrim"></div>
+  <nav id="sidebar">
+    <div class="brand">Dukaan Khata<small>Shop Manager</small></div>
+    <ul id="navlist">
+      <li class="navitem active" data-page="dashboard"><span class="ic">⌂</span>Dashboard</li>
+      <li class="navitem" data-page="billing"><span class="ic">🧾</span>GST Billing</li>
+      <li class="navitem" data-page="stock"><span class="ic">📦</span>Stock</li>
+      <li class="navitem" data-page="khata"><span class="ic">✍</span>Udhar Khata<span class="badge" id="nb-khata" style="display:none"></span></li>
+      <li class="navitem" data-page="customers"><span class="ic">👤</span>Customers</li>
+      <li class="navitem" data-page="lowstock"><span class="ic">⚠</span>Alerts<span class="badge" id="nb-lowstock" style="display:none"></span></li>
+      <li class="navitem" data-page="pl"><span class="ic">📈</span>Profit &amp; Loss</li>
+      <li class="navitem" data-page="expenses"><span class="ic">💸</span>Expenses</li>
+      <li class="navitem" data-page="parties"><span class="ic">🚚</span>Suppliers &amp; Staff</li>
+      <li class="navitem" data-page="ai"><span class="ic">✦</span>AI Assistant</li>
+      <li class="navitem" data-page="whatsapp"><span class="ic">💬</span>WhatsApp</li>
+      <li class="navitem" data-page="calendar"><span class="ic">📅</span>Calendar<span class="badge" id="nb-cal" style="display:none"></span></li>
+      <li class="navitem" data-page="backup"><span class="ic">☁</span>Backup</li>
+      <li class="navitem" data-page="settings"><span class="ic">⚙</span>Settings</li>
+    </ul>
+    <div id="sidebar-foot">Works offline · Data stored on this device</div>
+  </nav>
+
+  <div id="main">
+    <div id="topbar">
+      <button id="hamburger">☰</button>
+      <div>
+        <div id="pagetitle">Dashboard</div>
+        <div id="pagesub">Today's overview</div>
+      </div>
+      <div class="topbar-actions">
+        <input id="globalsearch" placeholder="Search products, customers, invoices…">
+        <div id="save-box">
+          <span id="save-filename" class="hint">No save file yet</span>
+          <span id="save-dot" class="dot-inline" title="Unsaved changes"></span>
+          <button class="btn ghost sm" id="btn-save" title="Save your data to a file on this device">💾 Save</button>
+          <button class="iconbtn" id="btn-saveas" title="Save As… (choose a new file)" style="display:none;">⋯</button>
+          <button class="iconbtn" id="btn-import" title="Import a save file">📥</button>
+          <button class="iconbtn" id="btn-export" title="Export data (JSON/CSV)">📤</button>
+        </div>
+        <div class="bell-wrap">
+          <button class="icon-btn" id="remindbtn" title="Reminders">🔔<span class="dot" id="remdot" style="display:none"></span></button>
+          <div class="bell-panel" id="bell-panel"></div>
+        </div>
+        <button class="icon-btn" id="lockbtn" title="Lock app">🔒</button>
+      </div>
+    </div>
+    <div id="content">
+      <div class="page active" id="page-dashboard"></div>
+      <div class="page" id="page-billing"></div>
+      <div class="page" id="page-stock"></div>
+      <div class="page" id="page-khata"></div>
+      <div class="page" id="page-customers"></div>
+      <div class="page" id="page-lowstock"></div>
+      <div class="page" id="page-pl"></div>
+      <div class="page" id="page-expenses"></div>
+      <div class="page" id="page-parties"></div>
+      <div class="page" id="page-ai"></div>
+      <div class="page" id="page-whatsapp"></div>
+      <div class="page" id="page-calendar"></div>
+      <div class="page" id="page-backup"></div>
+      <div class="page" id="page-settings"></div>
+    </div>
+  </div>
+
+  <nav id="bottomnav"><div class="bn-scroll" id="bn-scroll"></div></nav>
+</div>
+
+<div class="modal-bg" id="modalbg">
+  <div class="modal" id="modalbox">
+    <div class="modal-head"><h3 id="modaltitle">Title</h3><button class="closex" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="modalbody"></div>
+    <div class="modal-foot" id="modalfoot"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastwrap"></div>
+<div id="reminder-popup-wrap"></div>
+
+<div id="login-overlay">
+  <div class="login-card">
+    <h2>🔒 Dukaan Khata</h2>
+    <p>Enter password to continue</p>
+    <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')attemptUnlock();">
+    <button class="btn gold" style="width:100%;" onclick="attemptUnlock()">Unlock</button>
+    <div class="login-err" id="login-err"></div>
+    <p class="hint" style="margin-top:14px;">Forgot your password? Clear this site's data from your browser's settings to reset the app (this erases all shop data).</p>
+  </div>
+</div>
+
+<script>
+/* ===================== DUKAAN KHATA — APP SCRIPT ===================== */
+
+/* ---------- IndexedDB layer (handles large data well) ---------- */
+const DB_NAME='dukaan_khata_db', DB_VER=2;
+const STORES=['products','customers','invoices','khataTx','expenses','suppliers','staff','reminders','settings','stockLog','staffLog'];
+let db;
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=(e)=>{
+      const d=e.target.result;
+      const mk=(name,keyPath,indexes)=>{
+        if(!d.objectStoreNames.contains(name)){
+          const s=d.createObjectStore(name,{keyPath:keyPath||'id'});
+          (indexes||[]).forEach(ix=>s.createIndex(ix,ix,{unique:false}));
+        }
+      };
+      mk('products','id',['name','category','sku']);
+      mk('customers','id',['name','phone']);
+      mk('invoices','id',['date','customerId','status']);
+      mk('khataTx','id',['customerId','date']);
+      mk('expenses','id',['date','category']);
+      mk('suppliers','id',['name']);
+      mk('staff','id',['name']);
+      mk('reminders','id',['date']);
+      mk('settings','key');
+      mk('stockLog','id',['productId','date']);
+      mk('staffLog','id',['staffId','date']);
+      mk('appstate','key');
+    };
+    req.onsuccess=()=>{db=req.result;res(db);};
+    req.onerror=()=>rej(req.error);
+  });
+}
+function tx(store,mode='readonly'){return db.transaction(store,mode).objectStore(store);}
+function dbAll(store){return new Promise((res,rej)=>{const r=tx(store).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function dbGet(store,id){return new Promise((res,rej)=>{const r=tx(store).get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+function dbPut(store,val){return new Promise((res,rej)=>{const r=tx(store,'readwrite').put(val);r.onsuccess=()=>{if(store!=='appstate')markDirty();res(val);};r.onerror=()=>rej(r.error);});}
+function dbDel(store,id){return new Promise((res,rej)=>{const r=tx(store,'readwrite').delete(id);r.onsuccess=()=>{if(store!=='appstate')markDirty();res();};r.onerror=()=>rej(r.error);});}
+function dbClear(store){return new Promise((res,rej)=>{const r=tx(store,'readwrite').clear();r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
+/* Bulk write many rows to one store in a single transaction — dramatically faster than
+   awaiting dbPut per row for large datasets (e.g. restoring a backup with thousands of rows). */
+function dbBulkPut(store,rows){
+  return new Promise((res,rej)=>{
+    if(!rows||!rows.length){res();return;}
+    const t=db.transaction(store,'readwrite');
+    const s=t.objectStore(store);
+    for(const row of rows) s.put(row);
+    t.oncomplete=()=>{ if(store!=='appstate') markDirty(); res(); };
+    t.onerror=()=>rej(t.error);
+  });
+}
+
+/* In-memory cache for fast filtering/sorting on large sets */
+const CACHE={products:[],customers:[],invoices:[],khataTx:[],expenses:[],suppliers:[],staff:[],reminders:[],stockLog:[],staffLog:[]};
+async function reloadCache(store){
+  CACHE[store]=await dbAll(store);
+  if(store==='khataTx' && typeof invalidateBalanceCache==='function') invalidateBalanceCache();
+  if(store==='invoices' && typeof invalidatePurchaseMapCache==='function') invalidatePurchaseMapCache();
+  if(store==='products' && typeof invalidateProductMapCache==='function') invalidateProductMapCache();
+  if(store==='customers' && typeof invalidateCustomerMapCache==='function') invalidateCustomerMapCache();
+  if(store==='staff' && typeof invalidateStaffMapCache==='function') invalidateStaffMapCache();
+}
+async function reloadAllCache(){for(const s of Object.keys(CACHE)) await reloadCache(s);}
+
+/* ---------- Utils ---------- */
+const uid=()=> 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const todayISO=()=> new Date().toISOString().slice(0,10);
+function fmtMoney(n){
+  n=Number(n||0);
+  const neg=n<0; n=Math.abs(n);
+  const s=n.toFixed(2);
+  let [int,dec]=s.split('.');
+  let last3=int.slice(-3), rest=int.slice(0,-3);
+  if(rest!=='') last3=','+last3;
+  rest=rest.replace(/\B(?=(\d{2})+(?!\d))/g,',');
+  return (neg?'-':'')+'₹'+rest+last3+'.'+dec;
+}
+function fmtNum(n){return Number(n||0).toLocaleString('en-IN');}
+function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtDateTime(iso){ const d=new Date(iso); return d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function debounce(fn,ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+function toast(msg,type=''){
+  const el=document.createElement('div');
+  el.className='toast'+(type?' '+type:'');
+  el.textContent=msg;
+  document.getElementById('toastwrap').appendChild(el);
+  setTimeout(()=>el.remove(),3200);
+}
+function openModal(title,bodyHtml,footHtml,wide){
+  document.getElementById('modaltitle').textContent=title;
+  document.getElementById('modalbody').innerHTML=bodyHtml;
+  document.getElementById('modalfoot').innerHTML=footHtml||'';
+  document.getElementById('modalbox').classList.toggle('wide',!!wide);
+  document.getElementById('modalbg').classList.add('open');
+}
+function closeModal(){document.getElementById('modalbg').classList.remove('open');}
+document.getElementById('modalbg').addEventListener('click',e=>{if(e.target.id==='modalbg')closeModal();});
+
+let SETTINGS={shopName:'My Shop',shopGSTIN:'',shopAddress:'',shopPhone:'',shopState:'',invoicePrefix:'INV-',invoiceSeq:1,lowStockDefault:5,expiryWarnDays:30,waCountryCode:'91',anthropicNote:'',driveClientId:'',notifyEnabled:false,userPasswordHash:'',adminPasswordHash:''};
+
+function expiryStatus(p){
+  if(!p.expiryDate) return null;
+  const today=new Date(todayISO());
+  const exp=new Date(p.expiryDate);
+  const diffDays=Math.round((exp-today)/86400000);
+  if(diffDays<0) return 'expired';
+  if(diffDays<=(SETTINGS.expiryWarnDays||30)) return 'soon';
+  return null;
+}
+function expiryPill(p){
+  const st=expiryStatus(p);
+  if(st==='expired') return `<span class="pill danger" style="margin-left:6px;">expired</span>`;
+  if(st==='soon') return `<span class="pill warn" style="margin-left:6px;">expiring soon</span>`;
+  return '';
+}
+
+/* ---------- Save-to-file (File System Access API, with download fallback) ---------- */
+let fileHandle=null, unsavedChanges=false, autosaveTimer=null;
+
+/* ---------- Security: app lock (user password) + admin-protected Settings ---------- */
+let appUnlocked=false, adminUnlocked=false;
+async function sha256Hex(str){
+  const enc=new TextEncoder().encode(str);
+  const buf=await crypto.subtle.digest('SHA-256',enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function attemptUnlock(){
+  const val=document.getElementById('login-pass').value;
+  const hash=await sha256Hex(val||'');
+  if(!SETTINGS.userPasswordHash || hash===SETTINGS.userPasswordHash){
+    appUnlocked=true;
+    document.getElementById('login-overlay').classList.remove('open');
+    document.getElementById('login-pass').value='';
+    document.getElementById('login-err').textContent='';
+  } else {
+    document.getElementById('login-err').textContent='Incorrect password';
+    document.getElementById('login-pass').value='';
+  }
+}
+function lockApp(){
+  if(!SETTINGS.userPasswordHash){ toast('Set a user password in Settings first','err'); return; }
+  appUnlocked=false; adminUnlocked=false;
+  document.getElementById('login-overlay').classList.add('open');
+  document.getElementById('login-pass').focus();
+}
+function promptAdminPassword(onSuccess){
+  const body=`<p class="hint" style="margin-top:0;">Settings is protected by an admin password.</p>
+  <div class="field"><label>Admin Password</label><input type="password" id="adm-pass" onkeydown="if(event.key==='Enter'){document.getElementById('adm-ok').click();}"></div>
+  <div class="login-err" id="adm-err"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" id="adm-ok" onclick="submitAdminPassword()">Unlock</button>`;
+  openModal('Admin Access Required',body,foot);
+  window._adminSuccessCb=onSuccess;
+  setTimeout(()=>{const el=document.getElementById('adm-pass'); if(el) el.focus();},50);
+}
+async function submitAdminPassword(){
+  const val=document.getElementById('adm-pass').value;
+  const hash=await sha256Hex(val||'');
+  if(hash===SETTINGS.adminPasswordHash){
+    adminUnlocked=true; closeModal();
+    if(window._adminSuccessCb) window._adminSuccessCb();
+  } else {
+    document.getElementById('adm-err').textContent='Incorrect admin password';
+  }
+}
+async function setUserPassword(){
+  const val=document.getElementById('sec-userpass').value;
+  if(!val){toast('Enter a password','err');return;}
+  await saveSetting('userPasswordHash',await sha256Hex(val));
+  toast('User password set'); RENDERERS.settings();
+}
+async function clearUserPassword(){
+  if(!confirm('Remove the user password? Anyone will be able to open the app without a password.')) return;
+  await saveSetting('userPasswordHash',''); toast('User password removed'); RENDERERS.settings();
+}
+async function setAdminPassword(){
+  const val=document.getElementById('sec-adminpass').value;
+  if(!val){toast('Enter a password','err');return;}
+  await saveSetting('adminPasswordHash',await sha256Hex(val));
+  toast('Admin password set'); RENDERERS.settings();
+}
+async function clearAdminPassword(){
+  if(!confirm('Remove the admin password? Settings will no longer require a password.')) return;
+  await saveSetting('adminPasswordHash',''); adminUnlocked=true; toast('Admin password removed'); RENDERERS.settings();
+}
+async function toggleNotifications(checked){
+  if(checked && 'Notification' in window){
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){ toast('Browser notifications were not allowed','err'); checked=false; }
+  }
+  await saveSetting('notifyEnabled',checked);
+}
+function markDirty(){
+  unsavedChanges=true;
+  const dot=document.getElementById('save-dot'); if(dot) dot.style.display='inline-block';
+  scheduleAutosave();
+}
+function buildSavePayload(){
+  const payload={exportedAt:new Date().toISOString(),settings:SETTINGS};
+  for(const s of Object.keys(CACHE)) payload[s]=CACHE[s];
+  return payload;
+}
+async function loadFileHandle(){
+  try{
+    const row=await dbGet('appstate','saveFileHandle');
+    if(row && row.val) fileHandle=row.val;
+  }catch(e){ /* not available in this browser or no permission yet */ }
+  updateSaveUI();
+}
+async function updateSaveUI(){
+  const nameEl=document.getElementById('save-filename');
+  const dot=document.getElementById('save-dot');
+  const saveAsBtn=document.getElementById('btn-saveas');
+  if(!nameEl) return;
+  if(!fileHandle){ nameEl.textContent='No save file yet'; if(saveAsBtn) saveAsBtn.style.display='none'; }
+  else{
+    let perm='granted';
+    try{ perm=await fileHandle.queryPermission({mode:'readwrite'}); }catch(e){}
+    nameEl.textContent=fileHandle.name+(perm==='granted'?'':' (click Save to reconnect)');
+    if(saveAsBtn) saveAsBtn.style.display='inline-block';
+  }
+  if(dot) dot.style.display=unsavedChanges?'inline-block':'none';
+}
+function scheduleAutosave(){
+  if(autosaveTimer) clearTimeout(autosaveTimer);
+  if(!fileHandle || !('showSaveFilePicker' in window)) return;
+  autosaveTimer=setTimeout(async ()=>{
+    try{
+      const perm=await fileHandle.queryPermission({mode:'readwrite'});
+      if(perm==='granted') await saveToFile(false,true);
+    }catch(e){ /* needs a manual click to reconnect permission */ }
+  },4000);
+}
+async function saveToFile(forcePicker,silent){
+  const supportsFS='showSaveFilePicker' in window;
+  try{
+    if(supportsFS){
+      if(forcePicker || !fileHandle){
+        const suggested=(fileHandle&&fileHandle.name) || ((SETTINGS.shopName||'dukaan-khata').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json');
+        fileHandle=await window.showSaveFilePicker({suggestedName:suggested,types:[{description:'Dukaan Khata Save File',accept:{'application/json':['.json']}}]});
+        await dbPut('appstate',{key:'saveFileHandle',val:fileHandle});
+      } else {
+        const perm=await fileHandle.queryPermission({mode:'readwrite'});
+        if(perm!=='granted'){
+          const req=await fileHandle.requestPermission({mode:'readwrite'});
+          if(req!=='granted') throw new Error('permission-denied');
+        }
+      }
+      const writable=await fileHandle.createWritable();
+      await writable.write(JSON.stringify(buildSavePayload(),null,2));
+      await writable.close();
+      unsavedChanges=false; updateSaveUI();
+      if(!silent) toast('Saved to '+fileHandle.name,'ok');
+    } else {
+      const payload=buildSavePayload();
+      const name=(SETTINGS.shopName||'dukaan-khata').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
+      unsavedChanges=false; updateSaveUI();
+      toast('Downloaded '+name+' — this browser can\'t save to the same file automatically, use Chrome/Edge on desktop for that.','ok');
+    }
+  }catch(err){
+    if(err && err.name==='AbortError') return;
+    console.error(err);
+    if(!silent) toast('Could not save — click Save again to reconnect the file','err');
+  }
+}
+
+/* ---------- Import (open a save file) ---------- */
+async function applyImportedData(data){
+  for(const s of Object.keys(CACHE)){
+    if(Array.isArray(data[s])){
+      await dbClear(s);
+      await dbBulkPut(s,data[s]);
+    }
+  }
+  if(data.settings){ for(const k in data.settings) await saveSetting(k,data.settings[k]); }
+  await reloadAllCache();
+}
+function pickFileViaInput(accept){
+  return new Promise((resolve)=>{
+    const input=document.createElement('input');
+    input.type='file'; input.accept=accept||'.json,application/json';
+    input.onchange=()=>resolve(input.files[0]||null);
+    input.click();
+  });
+}
+
+/* ===================== EXCEL / CSV BULK IMPORT (Products, Suppliers, Staff) ===================== */
+const IMPORT_FIELDS={
+  products:{
+    store:'products', label:'Products (Stock)',
+    fields:[
+      {key:'name',label:'Product Name',required:true,aliases:['product','productname','item','itemname','name']},
+      {key:'sku',label:'SKU / Code',aliases:['sku','code','itemcode','barcode']},
+      {key:'category',label:'Category',aliases:['category','cat','group']},
+      {key:'unit',label:'Unit',default:'pcs',aliases:['unit','uom']},
+      {key:'stock',label:'Stock Quantity',type:'number',default:0,aliases:['stock','qty','quantity','currentstock','openingstock']},
+      {key:'reorderLevel',label:'Reorder Level',type:'number',default:5,aliases:['reorderlevel','reorder','minstock','lowstockalert']},
+      {key:'purchasePrice',label:'Purchase Price',type:'number',default:0,aliases:['purchaseprice','costprice','cost','buyprice']},
+      {key:'salePrice',label:'Sale Price',type:'number',default:0,aliases:['saleprice','sellingprice','price','mrp']},
+      {key:'gst',label:'GST %',type:'number',default:0,aliases:['gst','gstpercent','tax','taxpercent']},
+      {key:'mfgDate',label:'Manufacturing Date',type:'date',aliases:['mfgdate','manufacturingdate','mfddate']},
+      {key:'expiryDate',label:'Expiry Date',type:'date',aliases:['expirydate','expiry','expdate']},
+    ],
+    matchKeys:['sku','name']
+  },
+  suppliers:{
+    store:'suppliers', label:'Suppliers',
+    fields:[
+      {key:'name',label:'Supplier Name',required:true,aliases:['name','suppliername','vendor','vendorname']},
+      {key:'phone',label:'Phone',aliases:['phone','mobile','contact','contactnumber']},
+      {key:'gstin',label:'GSTIN',aliases:['gstin','gstno','gst']},
+      {key:'items',label:'Items Supplied',aliases:['items','itemssupplied','products','supplies']},
+    ],
+    matchKeys:['name']
+  },
+  staff:{
+    store:'staff', label:'Staff',
+    fields:[
+      {key:'name',label:'Staff Name',required:true,aliases:['name','staffname','employee','employeename']},
+      {key:'role',label:'Role',aliases:['role','designation','position']},
+      {key:'phone',label:'Phone',aliases:['phone','mobile','contact','contactnumber']},
+      {key:'salary',label:'Monthly Salary',type:'number',default:0,aliases:['salary','monthlysalary','pay','wage']},
+      {key:'joined',label:'Joining Date',type:'date',aliases:['joined','joiningdate','dateofjoining','doj']},
+    ],
+    matchKeys:['name']
+  }
+};
+function normalizeHeader(h){ return String(h||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function guessColumnForField(field,headers){
+  const normHeaders=headers.map(h=>({raw:h,norm:normalizeHeader(h)}));
+  for(const alias of field.aliases){
+    const hit=normHeaders.find(h=>h.norm===alias);
+    if(hit) return hit.raw;
+  }
+  for(const alias of field.aliases){
+    const hit=normHeaders.find(h=>h.norm.includes(alias)||alias.includes(h.norm));
+    if(hit) return hit.raw;
+  }
+  return '';
+}
+function excelDateToISO(val){
+  if(val===undefined||val===null||val==='') return '';
+  if(val instanceof Date && !isNaN(val)) return val.toISOString().slice(0,10);
+  if(typeof val==='number'){
+    const d=new Date(Math.round((val-25569)*86400*1000));
+    if(!isNaN(d)) return d.toISOString().slice(0,10);
+  }
+  const s=String(val).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const parsed=new Date(s);
+  if(!isNaN(parsed)) return parsed.toISOString().slice(0,10);
+  return '';
+}
+
+let importState=null;
+async function openImportModal(type){
+  const cfg=IMPORT_FIELDS[type];
+  importState={type,cfg,rows:null,headers:null,mapping:{}};
+  const body=`
+  <p class="hint" style="margin-top:0;">Import ${escapeHtml(cfg.label)} from an Excel (.xlsx) or CSV file. The first row of your file should be column headers.</p>
+  <div class="field"><label>Choose file</label><input type="file" id="imp-file" accept=".xlsx,.xls,.csv"></div>
+  <button class="btn ghost sm" onclick="downloadImportTemplate('${type}')">⬇ Download a blank template</button>
+  <div id="imp-body-rest"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button>`;
+  openModal('Import '+cfg.label,body,foot,true);
+  document.getElementById('imp-file').addEventListener('change',onImportFileChosen);
+}
+function downloadImportTemplate(type){
+  const cfg=IMPORT_FIELDS[type];
+  const headers=cfg.fields.map(f=>f.label);
+  const ws=XLSX.utils.aoa_to_sheet([headers]);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Template');
+  XLSX.writeFile(wb,type+'-import-template.xlsx');
+}
+async function onImportFileChosen(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:'array',cellDates:true});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:''});
+    if(!rows.length){ toast('That file has no data rows','err'); return; }
+    importState.rows=rows;
+    importState.headers=Object.keys(rows[0]);
+    importState.cfg.fields.forEach(f=>{ importState.mapping[f.key]=guessColumnForField(f,importState.headers); });
+    renderImportMappingUI();
+  }catch(err){
+    console.error(err);
+    toast('Could not read that file — make sure it is a valid Excel or CSV file','err');
+  }
+}
+function renderImportMappingUI(){
+  const {cfg,headers,rows}=importState;
+  const headerOpts=(sel)=>`<option value="">— Skip this field —</option>`+headers.map(h=>`<option value="${escapeHtml(h)}" ${h===sel?'selected':''}>${escapeHtml(h)}</option>`).join('');
+  document.getElementById('imp-body-rest').innerHTML=`
+    <p class="hint">${rows.length} row(s) found. Match your file's columns to each field below (auto-detected where possible), then import.</p>
+    <div class="tablewrap"><table><thead><tr><th>Field</th><th>Column in your file</th></tr></thead><tbody>
+    ${cfg.fields.map(f=>`<tr><td>${escapeHtml(f.label)}${f.required?' *':''}</td><td><select id="impmap-${f.key}" onchange="importState.mapping['${f.key}']=this.value;">${headerOpts(importState.mapping[f.key])}</select></td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="card-head" style="margin-top:14px;"><h3 style="margin:0;font-size:14px;">Preview (first 5 rows)</h3></div>
+    <div class="tablewrap"><table><thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join('')}</tr></thead><tbody>
+    ${rows.slice(0,5).map(r=>`<tr>${headers.map(h=>`<td>${escapeHtml(r[h])}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>
+    <div class="field" style="margin-top:14px;">
+      <label style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--text);">
+        <input type="checkbox" id="imp-update-existing" style="width:auto;" checked>
+        Update existing records instead of duplicating (matched by ${cfg.matchKeys.map(k=>cfg.fields.find(f=>f.key===k).label).join(' or ')})
+      </label>
+    </div>`;
+  document.getElementById('modalfoot').innerHTML=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="runImport()">Import ${rows.length} Row(s)</button>`;
+}
+async function runImport(){
+  const {type,cfg,rows,mapping}=importState;
+  const updateExisting=document.getElementById('imp-update-existing').checked;
+  const nameField=cfg.fields.find(f=>f.required);
+  const existing=CACHE[cfg.store];
+  const matchIndex=new Map();
+  if(updateExisting){
+    existing.forEach(rec=>{
+      cfg.matchKeys.forEach(k=>{
+        const v=(rec[k]||'').toString().trim().toLowerCase();
+        if(v) matchIndex.set(k+':'+v,rec);
+      });
+    });
+  }
+  let created=0, updated=0, skipped=0;
+  const toWrite=[];
+  for(const row of rows){
+    const rec={};
+    let missingRequired=false;
+    for(const f of cfg.fields){
+      const col=mapping[f.key];
+      let val=col?row[col]:'';
+      if(f.type==='number') val=(val===''||val===undefined)?(f.default!==undefined?f.default:0):Number(val)||0;
+      else if(f.type==='date') val=excelDateToISO(val);
+      else val=(val===undefined||val===null)?'':String(val).trim();
+      if(f.required && !val) missingRequired=true;
+      rec[f.key]= (val===''&&f.default!==undefined&&f.type!=='date') ? f.default : val;
+    }
+    if(missingRequired){ skipped++; continue; }
+    let matched=null;
+    if(updateExisting){
+      for(const k of cfg.matchKeys){
+        const v=(rec[k]||'').toString().trim().toLowerCase();
+        if(v && matchIndex.has(k+':'+v)){ matched=matchIndex.get(k+':'+v); break; }
+      }
+    }
+    if(matched){
+      for(const f of cfg.fields){ if(rec[f.key]!==''&&rec[f.key]!==undefined) matched[f.key]=rec[f.key]; }
+      toWrite.push(matched); updated++;
+    } else {
+      const newRec={id:uid(),...rec,createdAt:Date.now()};
+      toWrite.push(newRec); created++;
+      cfg.matchKeys.forEach(k=>{ const v=(newRec[k]||'').toString().trim().toLowerCase(); if(v) matchIndex.set(k+':'+v,newRec); });
+    }
+  }
+  if(!toWrite.length){ toast('Nothing to import — check your column mapping','err'); return; }
+  await dbBulkPut(cfg.store,toWrite);
+  await reloadCache(cfg.store);
+  closeModal();
+  toast(`Imported: ${created} new, ${updated} updated${skipped?', '+skipped+' skipped (missing '+nameField.label+')':''}`,'ok');
+  updateBadges();
+  if(type==='products' && currentPage==='stock') renderStockTable();
+  if(type!=='products' && currentPage==='parties') renderPartiesBody();
+  if(currentPage==='dashboard') RENDERERS.dashboard();
+}
+async function importFromFile(){
+  if(!confirm('Importing will replace ALL current data in this app with the contents of the chosen file. Continue?')) return;
+  try{
+    let file;
+    if('showOpenFilePicker' in window){
+      const [handle]=await window.showOpenFilePicker({types:[{description:'Dukaan Khata Save File',accept:{'application/json':['.json']}}]});
+      file=await handle.getFile();
+      fileHandle=handle;
+      try{ await dbPut('appstate',{key:'saveFileHandle',val:handle}); }catch(e){}
+    } else {
+      file=await pickFileViaInput('.json,application/json');
+      if(!file) return;
+    }
+    const text=await file.text();
+    let data; try{ data=JSON.parse(text); }catch(e){ toast('That file is not a valid Dukaan Khata save/backup file','err'); return; }
+    await applyImportedData(data);
+    unsavedChanges=false; updateSaveUI();
+    toast('Data imported from '+file.name,'ok');
+    navigate('dashboard'); updateBadges();
+  }catch(err){
+    if(err && err.name==='AbortError') return;
+    console.error(err); toast('Import failed — check that the file is a valid backup','err');
+  }
+}
+
+/* ---------- Export (JSON / CSV) ---------- */
+function storeLabel(s){
+  const map={products:'Products / Stock',customers:'Customers',invoices:'Invoices',khataTx:'Udhar Khata Transactions',
+    expenses:'Expenses',suppliers:'Suppliers',staff:'Staff',reminders:'Reminders',stockLog:'Stock Adjustment Log',staffLog:'Salary Payment Log'};
+  return map[s]||s;
+}
+function openExportModal(){
+  const order=['products','customers','invoices','khataTx','expenses','suppliers','staff','reminders','stockLog','staffLog'];
+  const options=order.map(s=>`<option value="${s}">${storeLabel(s)} (${(CACHE[s]||[]).length})</option>`).join('');
+  const body=`
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-head"><h3>Full Backup (JSON)</h3></div>
+    <p class="hint" style="margin-top:0;">Everything in one file — products, customers, invoices, khata, expenses and settings. Best for backup or moving to another device.</p>
+    <button class="btn gold" onclick="exportBackup()">⬇ Download JSON Backup</button>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Single Table (CSV)</h3></div>
+    <p class="hint" style="margin-top:0;">Opens directly in Excel or Google Sheets.</p>
+    <div class="field"><label>Choose data</label><select id="exp-csv-table">${options}</select></div>
+    <button class="btn ghost" onclick="exportTableCSV(document.getElementById('exp-csv-table').value)">⬇ Download CSV</button>
+  </div>`;
+  openModal('Export Data',body,`<button class="btn ghost" onclick="closeModal()">Close</button>`);
+}
+function csvVal(v){
+  if(v===null||v===undefined) return '';
+  const s=String(v);
+  return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+function rowsToCSV(rows,columns){
+  const header=columns.map(c=>csvVal(c.label)).join(',');
+  const lines=rows.map(r=>columns.map(c=>csvVal(typeof c.value==='function'?c.value(r):r[c.key])).join(','));
+  return [header,...lines].join('\r\n');
+}
+function downloadCSV(filename,csvStr){
+  const blob=new Blob(['\uFEFF'+csvStr],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+}
+function exportTableCSV(store){
+  const rows=CACHE[store]||[];
+  if(!rows.length){ toast('No data to export in this table','err'); return; }
+  let columns;
+  switch(store){
+    case 'products': columns=[
+      {key:'name',label:'Name'},{key:'sku',label:'SKU'},{key:'category',label:'Category'},{key:'unit',label:'Unit'},
+      {key:'stock',label:'Stock'},{key:'reorderLevel',label:'Reorder Level'},{key:'purchasePrice',label:'Purchase Price'},
+      {key:'salePrice',label:'Sale Price'},{key:'gst',label:'GST %'}]; break;
+    case 'customers': columns=[
+      {key:'name',label:'Name'},{key:'phone',label:'Phone'},{key:'address',label:'Address'},{key:'gstin',label:'GSTIN'},
+      {key:'state',label:'State'},{label:'Udhar Balance',value:r=>customerBalance(r.id)}]; break;
+    case 'invoices': columns=[
+      {key:'number',label:'Invoice #'},{key:'date',label:'Date'},{label:'Customer',value:r=>custName(r.customerId)},
+      {label:'Items',value:r=>r.items.map(it=>it.name+' x'+it.qty).join('; ')},
+      {key:'subTotal',label:'Subtotal'},{key:'taxTotal',label:'Tax'},{key:'discount',label:'Discount'},
+      {key:'grandTotal',label:'Grand Total'},{key:'status',label:'Status'}]; break;
+    case 'khataTx': columns=[
+      {key:'date',label:'Date'},{label:'Customer',value:r=>custName(r.customerId)},{key:'type',label:'Type'},
+      {key:'amount',label:'Amount'},{key:'note',label:'Note'}]; break;
+    case 'expenses': columns=[
+      {key:'date',label:'Date'},{key:'category',label:'Category'},{key:'amount',label:'Amount'},{key:'mode',label:'Mode'},{key:'note',label:'Note'}]; break;
+    case 'suppliers': columns=[
+      {key:'name',label:'Name'},{key:'phone',label:'Phone'},{key:'gstin',label:'GSTIN'},{key:'items',label:'Items Supplied'}]; break;
+    case 'staff': columns=[
+      {key:'name',label:'Name'},{key:'role',label:'Role'},{key:'phone',label:'Phone'},{key:'salary',label:'Monthly Salary'},{key:'joined',label:'Joined'}]; break;
+    case 'reminders': columns=[
+      {key:'title',label:'Title'},{key:'date',label:'Date'},{key:'time',label:'Time'},{key:'repeat',label:'Repeat'},{label:'Done',value:r=>r.done?'Yes':'No'}]; break;
+    case 'stockLog': columns=[
+      {label:'Product',value:r=>{const p=getProductMap().get(r.productId);return p?p.name:'(deleted)';}},
+      {key:'date',label:'Date'},{key:'change',label:'Change'},{key:'reason',label:'Reason'}]; break;
+    case 'staffLog': columns=[
+      {label:'Staff',value:r=>{const s=getStaffMap().get(r.staffId);return s?s.name:'(deleted)';}},
+      {key:'date',label:'Date'},{key:'amount',label:'Amount'},{key:'note',label:'Note'}]; break;
+    default: columns=Object.keys(rows[0]).map(k=>({key:k,label:k}));
+  }
+  downloadCSV(`${store}-${todayISO()}.csv`,rowsToCSV(rows,columns));
+  toast('CSV downloaded');
+}
+async function loadSettings(){
+  const rows=await dbAll('settings');
+  rows.forEach(r=>SETTINGS[r.key]=r.val);
+}
+async function saveSetting(key,val){SETTINGS[key]=val; await dbPut('settings',{key,val});}
+
+/* ---------- Router ---------- */
+const PAGES=['dashboard','billing','stock','khata','customers','lowstock','pl','expenses','parties','ai','whatsapp','calendar','backup','settings'];
+const PAGE_META={
+  dashboard:{title:'Dashboard',sub:"Today's overview",ic:'⌂'},
+  billing:{title:'GST Billing & Invoicing',sub:'Create and manage invoices',ic:'🧾'},
+  stock:{title:'Stock Management',sub:'Products & inventory',ic:'📦'},
+  khata:{title:'Udhar Khata',sub:'उधार रजिस्टर — credit ledger',ic:'✍'},
+  customers:{title:'Customers',sub:'Manage your customers',ic:'👤'},
+  lowstock:{title:'Low Stock & Expiry Alerts',sub:'Items needing reorder or nearing expiry',ic:'⚠'},
+  pl:{title:'Profit & Loss',sub:'Business performance',ic:'📈'},
+  expenses:{title:'Expense Manager',sub:'Track shop expenses',ic:'💸'},
+  parties:{title:'Suppliers & Staff',sub:'Manage vendors and team',ic:'🚚'},
+  ai:{title:'AI Business Assistant',sub:'Ask about your shop data',ic:'✦'},
+  whatsapp:{title:'WhatsApp Automation',sub:'Message templates & sending',ic:'💬'},
+  calendar:{title:'Calendar & Reminders',sub:'Popup reminders',ic:'📅'},
+  backup:{title:'Backup & Restore',sub:'Local file & Google Drive',ic:'☁'},
+  settings:{title:'Settings',sub:'Shop profile & preferences',ic:'⚙'},
+};
+let currentPage='dashboard';
+const RENDERERS={};
+async function navigate(page){
+  if(!PAGES.includes(page)) return;
+  currentPage=page;
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  document.querySelectorAll('.bn-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('pagetitle').textContent=PAGE_META[page].title;
+  document.getElementById('pagesub').textContent=PAGE_META[page].sub;
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+  if(RENDERERS[page]) await RENDERERS[page]();
+}
+document.querySelectorAll('.navitem').forEach(n=>n.addEventListener('click',()=>{
+  if(n.dataset.page==='settings' && SETTINGS.adminPasswordHash && !adminUnlocked){
+    promptAdminPassword(()=>navigate('settings'));
+    return;
+  }
+  navigate(n.dataset.page);
+}));
+document.getElementById('hamburger').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('scrim').classList.toggle('open');
+});
+document.getElementById('scrim').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+});
+/* bottom nav (mobile) - reuse subset of important pages */
+const BN_PAGES=['dashboard','billing','stock','khata','customers','ai','calendar'];
+const bnScroll=document.getElementById('bn-scroll');
+BN_PAGES.forEach(p=>{
+  const el=document.createElement('div');
+  el.className='bn-item'+(p==='dashboard'?' active':'');
+  el.dataset.page=p;
+  el.innerHTML=`<span class="ic">${PAGE_META[p].ic}</span>${PAGE_META[p].title.split(' ')[0]}`;
+  el.addEventListener('click',()=>navigate(p));
+  bnScroll.appendChild(el);
+});
+
+/* Global search */
+document.getElementById('globalsearch').addEventListener('input',debounce(async (e)=>{
+  const q=e.target.value.trim().toLowerCase();
+  if(q.length<2) return;
+  const prod=CACHE.products.find(p=>p.name.toLowerCase().includes(q));
+  const cust=CACHE.customers.find(c=>c.name.toLowerCase().includes(q)||(c.phone||'').includes(q));
+  if(cust){ navigate('customers'); toast('Found customer: '+cust.name); }
+  else if(prod){ navigate('stock'); toast('Found product: '+prod.name); }
+},350));
+
+/* ===================== PERFORMANCE: cached lookup maps for large datasets ===================== */
+let _balanceMapCache=null, _purchaseMapCache=null, _productMapCache=null, _customerMapCache=null, _productNameMapCache=null, _staffMapCache=null;
+function invalidateBalanceCache(){_balanceMapCache=null;}
+function invalidatePurchaseMapCache(){_purchaseMapCache=null;}
+function invalidateProductMapCache(){_productMapCache=null;_productNameMapCache=null;}
+function invalidateCustomerMapCache(){_customerMapCache=null;}
+function invalidateStaffMapCache(){_staffMapCache=null;}
+function getBalanceMap(){
+  if(!_balanceMapCache){
+    _balanceMapCache=new Map();
+    for(const t of CACHE.khataTx){
+      const cur=_balanceMapCache.get(t.customerId)||0;
+      _balanceMapCache.set(t.customerId, cur+(t.type==='udhar'?t.amount:-t.amount));
+    }
+  }
+  return _balanceMapCache;
+}
+function getPurchaseMap(){
+  if(!_purchaseMapCache){
+    _purchaseMapCache=new Map();
+    for(const inv of CACHE.invoices){
+      if(!inv.customerId) continue;
+      const cur=_purchaseMapCache.get(inv.customerId)||{count:0,total:0};
+      cur.count++; cur.total+=Number(inv.grandTotal||0);
+      _purchaseMapCache.set(inv.customerId,cur);
+    }
+  }
+  return _purchaseMapCache;
+}
+function getProductMap(){
+  if(!_productMapCache){ _productMapCache=new Map(CACHE.products.map(p=>[p.id,p])); }
+  return _productMapCache;
+}
+function getProductNameMap(){
+  if(!_productNameMapCache){ _productNameMapCache=new Map(CACHE.products.map(p=>[p.name,p])); }
+  return _productNameMapCache;
+}
+function getCustomerMap(){
+  if(!_customerMapCache){ _customerMapCache=new Map(CACHE.customers.map(c=>[c.id,c])); }
+  return _customerMapCache;
+}
+function getStaffMap(){
+  if(!_staffMapCache){ _staffMapCache=new Map(CACHE.staff.map(s=>[s.id,s])); }
+  return _staffMapCache;
+}
+function customerBalance(custId){
+  return getBalanceMap().get(custId)||0;
+}
+
+/* ===================== DASHBOARD ===================== */
+let chartSales, chartTop, chartCat;
+function computeKPIs(){
+  const today=todayISO();
+  const invs=CACHE.invoices;
+  const todaysInv=invs.filter(i=>i.date===today);
+  const todaySales=todaysInv.reduce((a,i)=>a+i.grandTotal,0);
+  const monthStr=today.slice(0,7);
+  const monthInv=invs.filter(i=>i.date.startsWith(monthStr));
+  const monthSales=monthInv.reduce((a,i)=>a+i.grandTotal,0);
+  let udharTotal=0; for(const v of getBalanceMap().values()) udharTotal+=v;
+  const lowStock=CACHE.products.filter(p=>Number(p.stock)<=Number(p.reorderLevel||SETTINGS.lowStockDefault||5));
+  const expiring=CACHE.products.filter(p=>expiryStatus(p));
+  const monthExpenses=CACHE.expenses.filter(e=>e.date.startsWith(monthStr)).reduce((a,e)=>a+Number(e.amount),0);
+  const pmap=getProductMap();
+  const cogs=monthInv.reduce((a,i)=>a+i.items.reduce((s,it)=>{
+    const p=pmap.get(it.productId);
+    return s+(p?Number(p.purchasePrice||0)*it.qty:0);
+  },0),0);
+  const grossProfit=monthSales-cogs;
+  const netProfit=grossProfit-monthExpenses;
+  return {todaySales,monthSales,udharTotal,lowStock,expiring,monthExpenses,netProfit,todaysInv,monthInv};
+}
+RENDERERS.dashboard=async function(){
+  const k=computeKPIs();
+
+  const el=document.getElementById('page-dashboard');
+  el.innerHTML=`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="lbl">Today's Sales</div><div class="val num">${fmtMoney(k.todaySales)}</div><div class="sub">${k.todaysInv.length} invoice(s)</div></div>
+    <div class="kpi"><div class="lbl">This Month's Sales</div><div class="val num">${fmtMoney(k.monthSales)}</div><div class="sub">${k.monthInv.length} invoice(s)</div></div>
+    <div class="kpi ${k.udharTotal>0?'danger':'ok'}"><div class="lbl">Udhar Outstanding</div><div class="val num">${fmtMoney(k.udharTotal)}</div><div class="sub">across ${CACHE.customers.filter(c=>customerBalance(c.id)>0).length} customers</div></div>
+    <div class="kpi ${k.lowStock.length?'warn':'ok'}"><div class="lbl">Low Stock Items</div><div class="val num">${k.lowStock.length}</div><div class="sub">need reorder</div></div>
+    <div class="kpi ${k.expiring.length?'warn':'ok'}"><div class="lbl">Expiring / Expired</div><div class="val num">${k.expiring.length}</div><div class="sub">check Alerts page</div></div>
+    <div class="kpi"><div class="lbl">Month's Expenses</div><div class="val num">${fmtMoney(k.monthExpenses)}</div><div class="sub">all categories</div></div>
+    <div class="kpi ${k.netProfit>=0?'ok':'danger'}"><div class="lbl">Net Profit (est. this month)</div><div class="val num">${fmtMoney(k.netProfit)}</div><div class="sub">sales − cost − expenses</div></div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div class="card-head"><h3>Sales — Last 14 Days</h3></div><canvas id="cv-sales" height="110"></canvas></div>
+    <div class="card"><div class="card-head"><h3>Top Products (This Month)</h3></div><canvas id="cv-top" height="140"></canvas></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h3>Recent Invoices</h3><button class="btn ghost sm" onclick="navigate('billing')">View all</button></div>
+      <div class="tablewrap"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+      ${CACHE.invoices.slice().sort((a,b)=>b.createdAt-a.createdAt).slice(0,6).map(i=>`
+        <tr><td class="mono">${i.number}</td><td>${escapeHtml(custName(i.customerId))}</td><td>${fmtDate(i.date)}</td><td class="num">${fmtMoney(i.grandTotal)}</td>
+        <td><span class="pill ${i.status==='paid'?'ok':i.status==='udhar'?'danger':'warn'}">${i.status}</span></td></tr>`).join('') || `<tr><td colspan="5" class="empty">No invoices yet</td></tr>`}
+      </tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Reminders Today</h3><button class="btn ghost sm" onclick="navigate('calendar')">Calendar</button></div>
+      ${remindersDueList(todayISO())}
+    </div>
+  </div>`;
+  const salesByDayMap=new Map();
+  const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-13); cutoff.setHours(0,0,0,0);
+  for(const inv of CACHE.invoices){
+    if(inv.date>=cutoff.toISOString().slice(0,10)) salesByDayMap.set(inv.date,(salesByDayMap.get(inv.date)||0)+inv.grandTotal);
+  }
+  const salesByDay=[]; for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const iso=d.toISOString().slice(0,10);
+    salesByDay.push({label:d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}),tot:salesByDayMap.get(iso)||0});}
+  if(chartSales) chartSales.destroy();
+  chartSales=new Chart(document.getElementById('cv-sales'),{type:'line',data:{labels:salesByDay.map(s=>s.label),datasets:[{data:salesByDay.map(s=>s.tot),borderColor:'#D79A34',backgroundColor:'rgba(215,154,52,.15)',fill:true,tension:.3,pointRadius:2}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₹'+v}}}}});
+  const prodTotals={};
+  k.monthInv.forEach(inv=>inv.items.forEach(it=>{prodTotals[it.name]=(prodTotals[it.name]||0)+it.qty;}));
+  const topArr=Object.entries(prodTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(chartTop) chartTop.destroy();
+  chartTop=new Chart(document.getElementById('cv-top'),{type:'bar',data:{labels:topArr.map(t=>t[0]),datasets:[{data:topArr.map(t=>t[1]),backgroundColor:'#2F6F6B'}]},options:{indexAxis:'y',plugins:{legend:{display:false}}}});
+  updateBadges();
+};
+function custName(id){const c=getCustomerMap().get(id); return c?c.name:'Walk-in';}
+function reminderAppliesToDate(r,dateISO){
+  if(r.date>dateISO) return false;
+  if(!r.repeat || r.repeat==='none') return r.date===dateISO;
+  const d0=new Date(r.date+'T00:00:00'), d1=new Date(dateISO+'T00:00:00');
+  if(r.repeat==='daily') return true;
+  if(r.repeat==='weekly') return d0.getDay()===d1.getDay();
+  if(r.repeat==='monthly') return d0.getDate()===d1.getDate();
+  return r.date===dateISO;
+}
+function isReminderDoneOn(r,dateISO){
+  if(r.doneDates && r.doneDates.includes(dateISO)) return true;
+  if((!r.repeat||r.repeat==='none') && r.done && r.date===dateISO) return true;
+  return false;
+}
+function computeUpcomingReminders(limit,days){
+  const upcoming=[];
+  for(let i=0;i<(days||45) && upcoming.length<limit*3;i++){
+    const d=new Date(); d.setDate(d.getDate()+i);
+    const iso=d.toISOString().slice(0,10);
+    CACHE.reminders.forEach(r=>{
+      if(reminderAppliesToDate(r,iso) && !isReminderDoneOn(r,iso)) upcoming.push({r,occDate:iso});
+    });
+  }
+  upcoming.sort((a,b)=>a.occDate.localeCompare(b.occDate));
+  return upcoming.slice(0,limit);
+}
+let dismissedKeys=new Set();
+function computeDueNotifications(){
+  const today=todayISO();
+  const nowHM=new Date().toTimeString().slice(0,5);
+  return CACHE.reminders.filter(r=>{
+    if(!reminderAppliesToDate(r,today)) return false;
+    if(isReminderDoneOn(r,today)) return false;
+    const due=!r.time || r.time<=nowHM;
+    if(!due) return false;
+    if(dismissedKeys.has(r.id+'_'+today)) return false;
+    return true;
+  });
+}
+function dismissNotification(id,dateISO){
+  dismissedKeys.add(id+'_'+dateISO);
+  refreshBellBadge();
+  if(document.getElementById('bell-panel').classList.contains('open')) renderBellPanel();
+  if(currentPage==='dashboard') RENDERERS.dashboard();
+}
+function refreshBellBadge(){
+  const count=computeDueNotifications().length;
+  const dot=document.getElementById('remdot');
+  if(!dot) return;
+  dot.textContent=count>9?'9+':String(count);
+  dot.style.display=count?'inline-block':'none';
+}
+function renderBellPanel(){
+  const panel=document.getElementById('bell-panel');
+  const today=todayISO();
+  const due=computeDueNotifications();
+  const upcoming=computeUpcomingReminders(8,45).filter(u=>!(u.occDate===today && due.some(d=>d.id===u.r.id)));
+  panel.innerHTML=`
+    <div class="bp-title">Due Now</div>
+    ${due.length?due.map(r=>`
+      <div class="bp-item">
+        <div class="bp-main"><div class="t">${escapeHtml(r.title)}</div><div class="d">${r.time?'Today, '+r.time:'Today'}${r.repeat&&r.repeat!=='none'?' · repeats '+r.repeat:''}</div></div>
+        <button class="iconbtn" title="Mark done" onclick="toggleReminder('${r.id}','${today}');renderBellPanel();refreshBellBadge();">✓</button>
+        <button class="iconbtn" title="Dismiss" onclick="dismissNotification('${r.id}','${today}')">✕</button>
+      </div>`).join(''):'<div class="bp-empty">Nothing due right now</div>'}
+    <div class="bp-title">Upcoming</div>
+    ${upcoming.length?upcoming.map(({r,occDate})=>`
+      <div class="bp-item">
+        <div class="bp-main"><div class="t">${escapeHtml(r.title)}</div><div class="d">${fmtDate(occDate)}${r.time?', '+r.time:''}${r.repeat&&r.repeat!=='none'?' · repeats '+r.repeat:''}</div></div>
+      </div>`).join(''):'<div class="bp-empty">No upcoming reminders</div>'}
+    <div class="bp-foot"><button class="btn ghost sm" onclick="document.getElementById('bell-panel').classList.remove('open');navigate('calendar');">Open Calendar</button></div>
+  `;
+}
+function toggleBellPanel(){
+  const panel=document.getElementById('bell-panel');
+  const willOpen=!panel.classList.contains('open');
+  if(willOpen){ renderBellPanel(); }
+  panel.classList.toggle('open',willOpen);
+}
+document.addEventListener('click',(e)=>{
+  const wrap=document.querySelector('.bell-wrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('bell-panel').classList.remove('open');
+});
+document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.getElementById('bell-panel').classList.remove('open'); });
+
+function updateBadges(){
+  const lowCount=CACHE.products.filter(p=>Number(p.stock)<=Number(p.reorderLevel||SETTINGS.lowStockDefault||5)).length;
+  const expiryCount=CACHE.products.filter(p=>expiryStatus(p)).length;
+  const nbLow=document.getElementById('nb-lowstock'); const alertTotal=lowCount+expiryCount;
+  nbLow.style.display=alertTotal?'inline-block':'none'; nbLow.textContent=alertTotal;
+  const khataCount=CACHE.customers.filter(c=>customerBalance(c.id)>0).length;
+  const nbK=document.getElementById('nb-khata'); nbK.style.display=khataCount?'inline-block':'none'; nbK.textContent=khataCount;
+  const today=todayISO();
+  const todaysRem=CACHE.reminders.filter(r=>reminderAppliesToDate(r,today) && !isReminderDoneOn(r,today)).length;
+  const nbCal=document.getElementById('nb-cal'); nbCal.style.display=todaysRem?'inline-block':'none'; nbCal.textContent=todaysRem;
+  refreshBellBadge();
+}
+function remindersDueList(dateISO){
+  const list=CACHE.reminders.filter(r=>reminderAppliesToDate(r,dateISO)).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  if(!list.length) return `<div class="empty"><div class="big">📭</div>No reminders for today</div>`;
+  return `<div>${list.map(r=>{const done=isReminderDoneOn(r,dateISO); return `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);">
+      <div style="flex:1"><div style="font-weight:600;font-size:13px;${done?'text-decoration:line-through;color:var(--text-faint)':''}">${escapeHtml(r.title)}</div>
+      <div class="hint">${r.time||'All day'} ${r.repeat&&r.repeat!=='none'?'· repeats '+r.repeat:''}</div></div>
+      <button class="iconbtn" onclick="toggleReminder('${r.id}','${dateISO}')">${done?'↺':'✓'}</button>
+    </div>`;}).join('')}</div>`;
+}
+async function toggleReminder(id,dateISO){
+  dateISO=dateISO||todayISO();
+  const r=CACHE.reminders.find(r=>r.id===id); if(!r) return;
+  if(!r.repeat || r.repeat==='none'){
+    r.done=!r.done;
+  } else {
+    r.doneDates=r.doneDates||[];
+    const idx=r.doneDates.indexOf(dateISO);
+    if(idx>=0) r.doneDates.splice(idx,1); else r.doneDates.push(dateISO);
+  }
+  await dbPut('reminders',r);
+  updateBadges(); if(currentPage==='dashboard') RENDERERS.dashboard(); if(currentPage==='calendar') RENDERERS.calendar();
+  if(document.getElementById('bell-panel').classList.contains('open')) renderBellPanel();
+}
+
+/* ===================== GST BILLING & INVOICING ===================== */
+let billFilter={status:'all',q:''};
+RENDERERS.billing=async function(){
+  const el=document.getElementById('page-billing');
+  el.innerHTML=`
+  <div class="card-head" style="margin-bottom:14px;">
+    <div class="fieldrow" style="flex:1;">
+      <input id="bf-q" placeholder="Search invoice # or customer…" value="${escapeHtml(billFilter.q)}">
+      <select id="bf-status">
+        <option value="all">All statuses</option>
+        <option value="paid">Paid</option>
+        <option value="partial">Partial</option>
+        <option value="udhar">Udhar (unpaid)</option>
+      </select>
+    </div>
+    <button class="btn gold" onclick="openInvoiceForm()">+ New Invoice</button>
+  </div>
+  <div class="card"><div class="tablewrap"><table><thead><tr>
+    <th>Invoice #</th><th>Date</th><th>Customer</th><th>Items</th><th>Tax</th><th>Total</th><th>Status</th><th></th>
+  </tr></thead><tbody id="bill-tbody"></tbody></table></div>
+  <div class="pager" id="bill-pager"></div></div>`;
+  document.getElementById('bf-status').value=billFilter.status;
+  document.getElementById('bf-q').addEventListener('input',debounce(e=>{billFilter.q=e.target.value;renderBillTable();},250));
+  document.getElementById('bf-status').addEventListener('change',e=>{billFilter.status=e.target.value;renderBillTable();});
+  renderBillTable();
+};
+let billPage=1;
+function renderBillTable(){
+  let rows=CACHE.invoices.slice().sort((a,b)=>b.createdAt-a.createdAt);
+  if(billFilter.status!=='all') rows=rows.filter(r=>r.status===billFilter.status);
+  if(billFilter.q) rows=rows.filter(r=>r.number.toLowerCase().includes(billFilter.q.toLowerCase())||custName(r.customerId).toLowerCase().includes(billFilter.q.toLowerCase()));
+  const perPage=25; const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+  billPage=Math.min(billPage,totalPages);
+  const pageRows=rows.slice((billPage-1)*perPage,billPage*perPage);
+  document.getElementById('bill-tbody').innerHTML=pageRows.map(i=>`
+    <tr><td class="mono">${i.number}</td><td>${fmtDate(i.date)}</td><td>${escapeHtml(custName(i.customerId))}</td>
+    <td>${i.items.length}</td><td class="num">${fmtMoney(i.taxTotal)}</td><td class="num" style="font-weight:700">${fmtMoney(i.grandTotal)}</td>
+    <td><span class="pill ${i.status==='paid'?'ok':i.status==='udhar'?'danger':'warn'}">${i.status}</span></td>
+    <td class="rowactions">
+      <button class="iconbtn" title="Edit" onclick="editInvoice('${i.id}')">✎</button>
+      <button class="iconbtn" title="View / Print" onclick="viewInvoice('${i.id}')">👁</button>
+      <button class="iconbtn" title="Share on WhatsApp" onclick="waInvoice('${i.id}')">💬</button>
+      <button class="iconbtn" title="Delete" onclick="deleteInvoice('${i.id}')">🗑</button>
+    </td></tr>`).join('') || `<tr><td colspan="8" class="empty"><div class="big">🧾</div>No invoices match. Create your first invoice.</td></tr>`;
+  document.getElementById('bill-pager').innerHTML=`Page ${billPage} of ${totalPages}
+    <button class="iconbtn" onclick="billPage=Math.max(1,billPage-1);renderBillTable();">‹</button>
+    <button class="iconbtn" onclick="billPage=Math.min(${totalPages},billPage+1);renderBillTable();">›</button>`;
+}
+
+let invDraft=null;
+function nextInvoiceNumber(){
+  const seq=SETTINGS.invoiceSeq||1;
+  return (SETTINGS.invoicePrefix||'INV-')+String(seq).padStart(4,'0');
+}
+function openInvoiceForm(){
+  invDraft={id:uid(),number:nextInvoiceNumber(),date:todayISO(),customerId:'',items:[],discount:0,status:'paid',paidNow:0,editingId:null};
+  renderInvoiceForm();
+}
+function editInvoice(id){
+  const inv=CACHE.invoices.find(i=>i.id===id);
+  if(!inv){toast('Invoice not found','err');return;}
+  invDraft={id:inv.id,number:inv.number,date:inv.date,customerId:inv.customerId||'',
+    items:inv.items.map(it=>({...it})),discount:inv.discount||0,status:inv.status,
+    paidNow:inv.paidNow||0,editingId:inv.id};
+  renderInvoiceForm();
+}
+function renderInvoiceForm(){
+  const custOptions=CACHE.customers.map(c=>`<option value="${c.id}" ${c.id===invDraft.customerId?'selected':''}>${escapeHtml(c.name)} ${c.phone?'· '+c.phone:''}</option>`).join('');
+  const body=`
+    <div class="fieldrow">
+      <div class="field"><label>Invoice #</label><input id="f-invno" value="${invDraft.number}"></div>
+      <div class="field"><label>Date</label><input type="date" id="f-invdate" value="${invDraft.date}"></div>
+      <div class="field">
+        <label>Customer</label>
+        <div style="display:flex;gap:6px;">
+          <select id="f-cust" style="flex:1;"><option value="">Walk-in customer</option>${custOptions}</select>
+          <button class="btn ghost sm" onclick="quickAddCustomer()">+ New</button>
+        </div>
+      </div>
+    </div>
+    <div class="tablewrap"><table id="inv-items-table"><thead><tr>
+      <th style="min-width:160px">Item</th><th>Unit</th><th>Qty</th><th>Rate</th><th>GST%</th><th>Amount</th><th></th>
+    </tr></thead><tbody id="inv-items-body"></tbody></table></div>
+    <button class="btn ghost sm" style="margin-top:8px;" onclick="addInvoiceItemRow()">+ Add item</button>
+    <div class="grid2" style="margin-top:16px;">
+      <div class="field"><label>Discount (₹)</label><input type="number" id="f-discount" value="${invDraft.discount}" min="0"></div>
+      <div class="field"><label>Payment status</label>
+        <select id="f-status">
+          <option value="paid">Paid in full</option>
+          <option value="partial">Partially paid</option>
+          <option value="udhar">Udhar (unpaid — add to khata)</option>
+        </select>
+      </div>
+    </div>
+    <div id="f-partial-wrap" style="display:none;" class="field"><label>Amount received now (₹)</label><input type="number" id="f-partial-amt" value="${invDraft.paidNow||0}" min="0"></div>
+    <div id="inv-totals" style="text-align:right;font-size:13.5px;margin-top:10px;"></div>
+  `;
+  const isEdit=!!invDraft.editingId;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveInvoice()">${isEdit?'Update Invoice':'Save Invoice'}</button>`;
+  openModal(isEdit?'Edit Invoice '+invDraft.number:'New GST Invoice',body,foot,true);
+  document.getElementById('f-status').value=invDraft.status||'paid';
+  document.getElementById('f-partial-wrap').style.display=invDraft.status==='partial'?'block':'none';
+  document.getElementById('f-status').addEventListener('change',e=>{
+    document.getElementById('f-partial-wrap').style.display=e.target.value==='partial'?'block':'none';
+  });
+  if(invDraft.items.length===0) addInvoiceItemRow(); else renderInvoiceItemRows();
+}
+function availableStockForProduct(productId){
+  if(!productId) return null;
+  const p=CACHE.products.find(p=>p.id===productId);
+  if(!p) return null;
+  let avail=Number(p.stock);
+  if(invDraft.editingId){
+    const orig=CACHE.invoices.find(i=>i.id===invDraft.editingId);
+    if(orig){
+      const origQty=orig.items.filter(oi=>oi.productId===productId).reduce((a,oi)=>a+Number(oi.qty),0);
+      avail+=origQty;
+    }
+  }
+  return avail;
+}
+function refreshQtyWarning(idx){
+  const it=invDraft.items[idx]; if(!it) return;
+  const warnEl=document.getElementById('qtywarn-'+idx);
+  const inputEl=document.getElementById('qtyinput-'+idx);
+  if(!warnEl) return;
+  const avail=availableStockForProduct(it.productId);
+  if(avail!==null && Number(it.qty)>avail){
+    warnEl.textContent='Only '+fmtNum(avail)+' in stock';
+    if(inputEl) inputEl.style.borderColor='var(--danger)';
+  } else {
+    warnEl.textContent='';
+    if(inputEl) inputEl.style.borderColor='';
+  }
+}
+function addInvoiceItemRow(){
+  invDraft.items.push({productId:'',name:'',qty:1,rate:0,gst:0,unit:''});
+  renderInvoiceItemRows();
+}
+const refreshProductDatalist=debounce((query)=>{
+  const dl=document.getElementById('prod-datalist');
+  if(!dl) return;
+  const q=(query||'').trim().toLowerCase();
+  let matches;
+  if(!q) matches=CACHE.products.slice(0,50);
+  else matches=CACHE.products.filter(p=>p.name.toLowerCase().includes(q)).slice(0,50);
+  dl.innerHTML=matches.map(p=>`<option data-id="${p.id}" value="${escapeHtml(p.name)}">`).join('');
+},120);
+function renderInvoiceItemRows(){
+  if(!document.getElementById('prod-datalist')){
+    const d=document.createElement('datalist'); d.id='prod-datalist'; document.body.appendChild(d);
+  }
+  // Only the first 50 products are shown by default; typing narrows this via refreshProductDatalist,
+  // so this stays fast even with a catalog of thousands of SKUs.
+  document.getElementById('prod-datalist').innerHTML=CACHE.products.slice(0,50).map(p=>`<option data-id="${p.id}" value="${escapeHtml(p.name)}">`).join('');
+  const pmap=getProductMap();
+  document.getElementById('inv-items-body').innerHTML=invDraft.items.map((it,idx)=>{
+    const prod=it.productId?pmap.get(it.productId):null;
+    const unitDisplay=prod?(prod.unit||'pcs'):(it.unit||'—');
+    return `
+    <tr>
+      <td><input list="prod-datalist" value="${escapeHtml(it.name)}" oninput="onItemNameInput(${idx},this.value)" placeholder="Type product name"></td>
+      <td style="width:70px" class="hint" title="Auto-filled from the product's stock unit">${escapeHtml(unitDisplay)}</td>
+      <td style="width:90px">
+        <input type="number" min="0.01" step="0.01" value="${it.qty}" id="qtyinput-${idx}" oninput="invDraft.items[${idx}].qty=Number(this.value)||0;updateInvTotals();refreshQtyWarning(${idx});">
+        <div class="hint" id="qtywarn-${idx}" style="color:var(--danger);white-space:nowrap;"></div>
+      </td>
+      <td style="width:100px"><input type="number" min="0" step="0.01" value="${it.rate}" oninput="invDraft.items[${idx}].rate=Number(this.value)||0;updateInvTotals();"></td>
+      <td style="width:70px"><input type="number" min="0" step="0.01" value="${it.gst}" oninput="invDraft.items[${idx}].gst=Number(this.value)||0;updateInvTotals();"></td>
+      <td class="num" id="rowamt-${idx}">${fmtMoney(it.qty*it.rate)}</td>
+      <td><button class="iconbtn" onclick="invDraft.items.splice(${idx},1);renderInvoiceItemRows();">🗑</button></td>
+    </tr>`;}).join('');
+  updateInvTotals();
+  invDraft.items.forEach((it,idx)=>refreshQtyWarning(idx));
+}
+function onItemNameInput(idx,val){
+  invDraft.items[idx].name=val;
+  refreshProductDatalist(val);
+  const p=getProductNameMap().get(val);
+  if(p){invDraft.items[idx].productId=p.id;invDraft.items[idx].rate=Number(p.salePrice||0);invDraft.items[idx].gst=Number(p.gst||0);invDraft.items[idx].unit=p.unit||'';renderInvoiceItemRows();}
+  else {invDraft.items[idx].productId='';invDraft.items[idx].unit='';updateInvTotals();refreshQtyWarning(idx);}
+}
+function updateInvTotals(){
+  const discEl=document.getElementById('f-discount');
+  const disc=Number(discEl?discEl.value:0||0);
+  let sub=0,tax=0;
+  invDraft.items.forEach((it,idx)=>{
+    const amt=it.qty*it.rate;
+    sub+=amt; tax+=amt*(it.gst/100);
+    const cell=document.getElementById('rowamt-'+idx); if(cell) cell.textContent=fmtMoney(amt);
+  });
+  const grand=sub+tax-disc;
+  const custSel=document.getElementById('f-cust');
+  const custState=(CACHE.customers.find(c=>c.id===(custSel?custSel.value:''))||{}).state;
+  const sameState=!custState || custState===SETTINGS.shopState;
+  const box=document.getElementById('inv-totals');
+  if(box) box.innerHTML=`Subtotal: <b class="num">${fmtMoney(sub)}</b><br>
+    ${sameState?`CGST: <span class="num">${fmtMoney(tax/2)}</span> · SGST: <span class="num">${fmtMoney(tax/2)}</span>`:`IGST: <span class="num">${fmtMoney(tax)}</span>`}<br>
+    Discount: <span class="num">-${fmtMoney(disc)}</span><br>
+    <span style="font-size:18px;font-weight:700;">Grand Total: ${fmtMoney(grand)}</span>`;
+}
+document.addEventListener('input',(e)=>{ if(e.target.id==='f-discount') updateInvTotals(); if(e.target.id==='f-cust') updateInvTotals(); });
+
+async function quickAddCustomer(){
+  const body=`<div class="field"><label>Name *</label><input id="qc-name"></div>
+  <div class="field"><label>Phone</label><input id="qc-phone"></div>`;
+  openModal('Add Customer',body,`<button class="btn ghost" onclick="renderInvoiceForm()">Cancel</button><button class="btn gold" onclick="saveQuickCust()">Save</button>`);
+}
+async function saveQuickCust(){
+  const name=document.getElementById('qc-name').value.trim();
+  if(!name){toast('Name required','err');return;}
+  const c={id:uid(),name,phone:document.getElementById('qc-phone').value.trim(),address:'',gstin:'',state:SETTINGS.shopState,createdAt:Date.now()};
+  await dbPut('customers',c); await reloadCache('customers');
+  invDraft.customerId=c.id;
+  renderInvoiceForm();
+  toast('Customer added');
+}
+
+async function saveInvoice(){
+  const items=invDraft.items.filter(it=>it.name && it.qty>0);
+  if(!items.length){toast('Add at least one item','err');return;}
+  items.forEach(it=>{ if(it.productId){ const p=CACHE.products.find(p=>p.id===it.productId); if(p) it.unit=p.unit||'pcs'; } });
+  const qtyByProduct={};
+  items.forEach(it=>{ if(it.productId) qtyByProduct[it.productId]=(qtyByProduct[it.productId]||0)+Number(it.qty); });
+  const overages=[];
+  for(const pid in qtyByProduct){
+    const avail=availableStockForProduct(pid);
+    const need=qtyByProduct[pid];
+    if(avail!==null && need>avail){
+      const p=CACHE.products.find(p=>p.id===pid);
+      overages.push(`${p?p.name:'Item'} — need ${fmtNum(need)}, only ${fmtNum(avail)} in stock`);
+    }
+  }
+  if(overages.length){
+    const proceed=confirm('Not enough stock for:\n\n'+overages.join('\n')+'\n\nSave this invoice anyway?');
+    if(!proceed) return;
+  }
+  const sub=items.reduce((a,it)=>a+it.qty*it.rate,0);
+  const tax=items.reduce((a,it)=>a+it.qty*it.rate*(it.gst/100),0);
+  const disc=Number(document.getElementById('f-discount').value||0);
+  const grand=sub+tax-disc;
+  const status=document.getElementById('f-status').value;
+  const paidNow=status==='partial'?Number(document.getElementById('f-partial-amt').value||0):0;
+  const isEdit=!!invDraft.editingId;
+  const origInv=isEdit?CACHE.invoices.find(i=>i.id===invDraft.editingId):null;
+
+  // If editing, first undo the original invoice's stock deduction, stock-log entries and khata entries
+  if(origInv){
+    for(const it of origInv.items){
+      if(it.productId){
+        const p=CACHE.products.find(p=>p.id===it.productId);
+        if(p){ p.stock=Number(p.stock)+Number(it.qty); await dbPut('products',p); }
+      }
+    }
+    const oldLogs=CACHE.stockLog.filter(l=>l.invoiceId===origInv.id);
+    for(const l of oldLogs) await dbDel('stockLog',l.id);
+    const oldTx=CACHE.khataTx.filter(t=>t.invoiceId===origInv.id);
+    for(const t of oldTx) await dbDel('khataTx',t.id);
+    await reloadCache('products'); await reloadCache('stockLog'); await reloadCache('khataTx');
+  }
+
+  const inv={
+    id:invDraft.id, number:document.getElementById('f-invno').value||invDraft.number,
+    date:document.getElementById('f-invdate').value||todayISO(),
+    customerId:document.getElementById('f-cust').value||'',
+    items, subTotal:sub, taxTotal:tax, discount:disc, grandTotal:grand,
+    status, paidNow, createdAt:origInv?origInv.createdAt:Date.now()
+  };
+  for(const it of items){
+    if(it.productId){
+      const p=CACHE.products.find(p=>p.id===it.productId);
+      if(p){ p.stock=Number(p.stock)-Number(it.qty);
+        await dbPut('products',p);
+        await dbPut('stockLog',{id:uid(),productId:p.id,date:todayISO(),change:-it.qty,reason:'Invoice '+inv.number,invoiceId:inv.id,createdAt:Date.now()});
+      }
+    }
+  }
+  await dbPut('invoices',inv);
+  if(status==='udhar' && inv.customerId){
+    await dbPut('khataTx',{id:uid(),customerId:inv.customerId,date:inv.date,type:'udhar',amount:grand,note:'Invoice '+inv.number,invoiceId:inv.id,createdAt:Date.now()});
+  } else if(status==='partial' && inv.customerId){
+    const due=grand-paidNow;
+    if(due>0) await dbPut('khataTx',{id:uid(),customerId:inv.customerId,date:inv.date,type:'udhar',amount:due,note:'Partial due — Invoice '+inv.number,invoiceId:inv.id,createdAt:Date.now()});
+  }
+  if(!isEdit) await saveSetting('invoiceSeq',(SETTINGS.invoiceSeq||1)+1);
+  await reloadCache('products'); await reloadCache('invoices'); await reloadCache('khataTx'); await reloadCache('stockLog');
+  closeModal(); toast(isEdit?'Invoice updated':'Invoice saved'); renderBillTable(); updateBadges();
+  if(currentPage==='dashboard') RENDERERS.dashboard();
+}
+async function deleteInvoice(id){
+  if(!confirm('Delete this invoice? Stock will be restored.')) return;
+  const inv=CACHE.invoices.find(i=>i.id===id);
+  for(const it of inv.items){ if(it.productId){ const p=CACHE.products.find(p=>p.id===it.productId); if(p){p.stock=Number(p.stock)+Number(it.qty); await dbPut('products',p);} } }
+  const relatedLogs=CACHE.stockLog.filter(l=>l.invoiceId===id);
+  for(const l of relatedLogs) await dbDel('stockLog',l.id);
+  const relatedTx=CACHE.khataTx.filter(t=>t.invoiceId===id);
+  for(const t of relatedTx) await dbDel('khataTx',t.id);
+  await dbDel('invoices',id);
+  await reloadCache('products'); await reloadCache('invoices'); await reloadCache('khataTx'); await reloadCache('stockLog');
+  toast('Invoice deleted'); renderBillTable(); updateBadges();
+}
+function invoicePrintHtml(inv){
+  const cust=CACHE.customers.find(c=>c.id===inv.customerId);
+  return `<div style="font-family:Inter,sans-serif;max-width:620px;margin:auto;">
+    <div style="text-align:center;margin-bottom:10px;">
+      <div style="font-family:Fraunces,serif;font-size:22px;font-weight:700;">${escapeHtml(SETTINGS.shopName||'My Shop')}</div>
+      <div style="font-size:12px;color:#555;">${escapeHtml(SETTINGS.shopAddress||'')}</div>
+      <div style="font-size:12px;color:#555;">${SETTINGS.shopPhone?'Ph: '+escapeHtml(SETTINGS.shopPhone):''} ${SETTINGS.shopGSTIN?' · GSTIN: '+escapeHtml(SETTINGS.shopGSTIN):''}</div>
+    </div>
+    <hr>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin:10px 0;">
+      <div><b>Invoice:</b> ${inv.number}<br><b>Date:</b> ${fmtDate(inv.date)}</div>
+      <div style="text-align:right;"><b>Bill to:</b> ${escapeHtml(cust?cust.name:'Walk-in')}<br>${cust&&cust.phone?cust.phone:''}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <thead><tr style="border-bottom:1px solid #999;"><th style="text-align:left;padding:4px;">Item</th><th style="padding:4px;">Unit</th><th style="padding:4px;">Qty</th><th style="padding:4px;">Rate</th><th style="padding:4px;">GST%</th><th style="text-align:right;padding:4px;">Amount</th></tr></thead>
+      <tbody>${inv.items.map(it=>`<tr style="border-bottom:1px solid #eee;"><td style="padding:4px;">${escapeHtml(it.name)}</td><td style="text-align:center;padding:4px;">${escapeHtml(it.unit||'—')}</td><td style="text-align:center;padding:4px;">${it.qty}</td><td style="text-align:right;padding:4px;">${fmtMoney(it.rate)}</td><td style="text-align:center;padding:4px;">${it.gst}%</td><td style="text-align:right;padding:4px;">${fmtMoney(it.qty*it.rate)}</td></tr>`).join('')}</tbody>
+    </table>
+    <div style="text-align:right;margin-top:10px;font-size:13px;">
+      Subtotal: ${fmtMoney(inv.subTotal)}<br>Tax: ${fmtMoney(inv.taxTotal)}<br>Discount: -${fmtMoney(inv.discount)}<br>
+      <span style="font-size:16px;font-weight:700;">Grand Total: ${fmtMoney(inv.grandTotal)}</span><br>
+      <span style="font-size:11px;text-transform:uppercase;color:#777;">Status: ${inv.status}</span>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#999;margin-top:16px;">Thank you for your business!</div>
+  </div>`;
+}
+function viewInvoice(id){
+  const inv=CACHE.invoices.find(i=>i.id===id);
+  openModal('Invoice '+inv.number, `<div id="print-area">${invoicePrintHtml(inv)}</div>`,
+    `<button class="btn ghost" onclick="closeModal()">Close</button><button class="btn wa" onclick="waInvoice('${id}')">💬 Share</button><button class="btn gold" onclick="printInvoiceArea()">🖨 Print / Save PDF</button>`, true);
+}
+function printInvoiceArea(){
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Invoice</title></head><body>'+document.getElementById('print-area').innerHTML+'</body></html>');
+  w.document.close(); w.print();
+}
+function waInvoice(id){
+  const inv=CACHE.invoices.find(i=>i.id===id);
+  const cust=CACHE.customers.find(c=>c.id===inv.customerId);
+  const msg=`Namaste ${cust?cust.name:''}! Your invoice ${inv.number} from ${SETTINGS.shopName||'our shop'} dated ${fmtDate(inv.date)} — Total: ${fmtMoney(inv.grandTotal)} (${inv.status}). Thank you!`;
+  const phone=cust&&cust.phone?(SETTINGS.waCountryCode+cust.phone.replace(/\D/g,'').slice(-10)):'';
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+
+/* ===================== STOCK MANAGEMENT ===================== */
+let stockFilter={q:'',cat:'all'};
+let stockPage=1;
+RENDERERS.stock=async function(){
+  const el=document.getElementById('page-stock');
+  const cats=[...new Set(CACHE.products.map(p=>p.category).filter(Boolean))];
+  el.innerHTML=`
+  <div class="card-head" style="margin-bottom:14px;">
+    <div class="fieldrow" style="flex:1;">
+      <input id="sf-q" placeholder="Search product or SKU…" value="${escapeHtml(stockFilter.q)}">
+      <select id="sf-cat"><option value="all">All categories</option>${cats.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select>
+    </div>
+    <button class="btn ghost" onclick="openStockAdjustPicker()">Adjust Stock</button>
+    <button class="btn ghost" onclick="openImportModal('products')">📥 Import</button>
+    <button class="btn gold" onclick="openProductForm()">+ Add Product</button>
+  </div>
+  <div class="card"><div class="tablewrap"><table><thead><tr>
+    <th>Product</th><th>Category</th><th>Stock</th><th>Unit</th><th>Purchase ₹</th><th>Sale ₹</th><th>GST%</th><th>Expiry</th><th></th>
+  </tr></thead><tbody id="stock-tbody"></tbody></table></div>
+  <div class="pager" id="stock-pager"></div></div>`;
+  document.getElementById('sf-cat').value=stockFilter.cat;
+  document.getElementById('sf-q').addEventListener('input',debounce(e=>{stockFilter.q=e.target.value;stockPage=1;renderStockTable();},250));
+  document.getElementById('sf-cat').addEventListener('change',e=>{stockFilter.cat=e.target.value;stockPage=1;renderStockTable();});
+  renderStockTable();
+};
+function renderStockTable(){
+  let rows=CACHE.products.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  if(stockFilter.q) rows=rows.filter(p=>p.name.toLowerCase().includes(stockFilter.q.toLowerCase())||(p.sku||'').toLowerCase().includes(stockFilter.q.toLowerCase()));
+  if(stockFilter.cat!=='all') rows=rows.filter(p=>p.category===stockFilter.cat);
+  const perPage=30; const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+  stockPage=Math.min(stockPage,totalPages);
+  const pageRows=rows.slice((stockPage-1)*perPage,stockPage*perPage);
+  document.getElementById('stock-tbody').innerHTML=pageRows.map(p=>{
+    const low=Number(p.stock)<=Number(p.reorderLevel||SETTINGS.lowStockDefault||5);
+    return `<tr><td><b>${escapeHtml(p.name)}</b>${p.sku?`<div class="hint">${escapeHtml(p.sku)}</div>`:''}</td>
+    <td>${escapeHtml(p.category||'—')}</td>
+    <td class="num">${fmtNum(p.stock)} ${low?'<span class="pill danger" style="margin-left:6px;">low</span>':''}</td>
+    <td>${escapeHtml(p.unit||'pcs')}</td>
+    <td class="num">${fmtMoney(p.purchasePrice)}</td><td class="num">${fmtMoney(p.salePrice)}</td><td class="num">${p.gst||0}%</td>
+    <td>${p.expiryDate?fmtDate(p.expiryDate):'—'}${expiryPill(p)}</td>
+    <td class="rowactions">
+      <button class="iconbtn" title="Edit" onclick='openProductForm(${JSON.stringify(p.id)})'>✎</button>
+      <button class="iconbtn" title="Delete" onclick="deleteProduct('${p.id}')">🗑</button>
+    </td></tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty"><div class="big">📦</div>No products yet. Add your first product.</td></tr>`;
+  document.getElementById('stock-pager').innerHTML=`Page ${stockPage} of ${totalPages} · ${rows.length} products
+    <button class="iconbtn" onclick="stockPage=Math.max(1,stockPage-1);renderStockTable();">‹</button>
+    <button class="iconbtn" onclick="stockPage=Math.min(${totalPages},stockPage+1);renderStockTable();">›</button>`;
+}
+function openProductForm(id){
+  const p=id?CACHE.products.find(p=>p.id===id):{id:uid(),name:'',sku:'',category:'',unit:'pcs',stock:0,reorderLevel:SETTINGS.lowStockDefault||5,purchasePrice:0,salePrice:0,gst:0,mfgDate:'',expiryDate:''};
+  const body=`
+  <div class="fieldrow">
+    <div class="field"><label>Product name *</label><input id="pf-name" value="${escapeHtml(p.name)}"></div>
+    <div class="field"><label>SKU / Code</label><input id="pf-sku" value="${escapeHtml(p.sku||'')}"></div>
+  </div>
+  <div class="fieldrow">
+    <div class="field"><label>Category</label><input id="pf-cat" value="${escapeHtml(p.category||'')}"></div>
+    <div class="field"><label>Unit</label><input id="pf-unit" value="${escapeHtml(p.unit||'pcs')}" placeholder="pcs, kg, ltr…"></div>
+  </div>
+  <div class="fieldrow">
+    <div class="field"><label>Opening/Current Stock</label><input type="number" id="pf-stock" value="${p.stock}"></div>
+    <div class="field"><label>Reorder level (low-stock alert)</label><input type="number" id="pf-reorder" value="${p.reorderLevel}"></div>
+  </div>
+  <div class="fieldrow">
+    <div class="field"><label>Purchase Price ₹</label><input type="number" id="pf-purchase" value="${p.purchasePrice}"></div>
+    <div class="field"><label>Sale Price ₹</label><input type="number" id="pf-sale" value="${p.salePrice}"></div>
+    <div class="field"><label>GST %</label><input type="number" id="pf-gst" value="${p.gst}"></div>
+  </div>
+  <div class="fieldrow">
+    <div class="field"><label>Manufacturing Date (optional)</label><input type="date" id="pf-mfg" value="${p.mfgDate||''}"></div>
+    <div class="field"><label>Expiry Date (optional)</label><input type="date" id="pf-expiry" value="${p.expiryDate||''}"></div>
+  </div>
+  <div class="hint">Leave blank if this product doesn't expire. Items nearing or past their expiry date will be flagged automatically.</div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveProduct('${p.id}')">Save</button>`;
+  openModal(id?'Edit Product':'Add Product',body,foot);
+}
+async function saveProduct(id){
+  const name=document.getElementById('pf-name').value.trim();
+  if(!name){toast('Product name required','err');return;}
+  const existing=CACHE.products.find(p=>p.id===id)||{};
+  const p={
+    id, name, sku:document.getElementById('pf-sku').value.trim(),
+    category:document.getElementById('pf-cat').value.trim(),
+    unit:document.getElementById('pf-unit').value.trim()||'pcs',
+    stock:Number(document.getElementById('pf-stock').value||0),
+    reorderLevel:Number(document.getElementById('pf-reorder').value||5),
+    purchasePrice:Number(document.getElementById('pf-purchase').value||0),
+    salePrice:Number(document.getElementById('pf-sale').value||0),
+    gst:Number(document.getElementById('pf-gst').value||0),
+    mfgDate:document.getElementById('pf-mfg').value||'',
+    expiryDate:document.getElementById('pf-expiry').value||'',
+    createdAt:existing.createdAt||Date.now()
+  };
+  await dbPut('products',p); await reloadCache('products');
+  closeModal(); toast('Product saved'); renderStockTable(); updateBadges();
+};
+async function deleteProduct(id){
+  if(!confirm('Delete this product?')) return;
+  await dbDel('products',id); await reloadCache('products');
+  toast('Product deleted'); renderStockTable(); updateBadges();
+}
+function openStockAdjustPicker(){
+  const opts=CACHE.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} (current: ${fmtNum(p.stock)})</option>`).join('');
+  const body=`
+  <div class="field"><label>Product</label><select id="adj-prod">${opts}</select></div>
+  <div class="fieldrow">
+    <div class="field"><label>Type</label><select id="adj-type"><option value="in">Stock In (received)</option><option value="out">Stock Out (damage/loss)</option></select></div>
+    <div class="field"><label>Quantity</label><input type="number" id="adj-qty" value="1" min="0.01" step="0.01"></div>
+  </div>
+  <div class="field"><label>Reason / Note</label><input id="adj-reason" placeholder="e.g. New purchase from supplier"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="applyStockAdjust()">Apply</button>`;
+  openModal('Adjust Stock',body,foot);
+}
+async function applyStockAdjust(){
+  const pid=document.getElementById('adj-prod').value;
+  const type=document.getElementById('adj-type').value;
+  const qty=Number(document.getElementById('adj-qty').value||0);
+  const reason=document.getElementById('adj-reason').value.trim()||(type==='in'?'Stock in':'Stock out');
+  const p=CACHE.products.find(p=>p.id===pid);
+  if(!p||!qty){toast('Select product & quantity','err');return;}
+  const change=type==='in'?qty:-qty;
+  p.stock=Number(p.stock)+change;
+  await dbPut('products',p);
+  await dbPut('stockLog',{id:uid(),productId:pid,date:todayISO(),change,reason,createdAt:Date.now()});
+  await reloadCache('products'); await reloadCache('stockLog');
+  closeModal(); toast('Stock updated'); renderStockTable(); updateBadges();
+}
+
+/* ===================== LOW STOCK & EXPIRY ALERTS ===================== */
+RENDERERS.lowstock=async function(){
+  const el=document.getElementById('page-lowstock');
+  const low=CACHE.products.filter(p=>Number(p.stock)<=Number(p.reorderLevel||SETTINGS.lowStockDefault||5)).sort((a,b)=>a.stock-b.stock);
+  const expiring=CACHE.products.filter(p=>expiryStatus(p)).sort((a,b)=>(a.expiryDate||'').localeCompare(b.expiryDate||''));
+  el.innerHTML=`<div class="section-note">Items at or below their reorder level. Default reorder level: ${SETTINGS.lowStockDefault||5} (set per-product, or change default in Settings).</div>
+  <div class="card"><div class="card-head"><h3 style="margin:0;">Low Stock</h3></div><div class="tablewrap"><table><thead><tr><th>Product</th><th>Category</th><th>Current Stock</th><th>Reorder Level</th><th>Suggested Reorder Qty</th><th></th></tr></thead><tbody>
+  ${low.map(p=>`<tr><td><b>${escapeHtml(p.name)}</b></td><td>${escapeHtml(p.category||'—')}</td>
+    <td class="num" style="color:var(--danger);font-weight:700;">${fmtNum(p.stock)} ${escapeHtml(p.unit||'')}</td>
+    <td class="num">${fmtNum(p.reorderLevel||SETTINGS.lowStockDefault||5)}</td>
+    <td class="num">${fmtNum(Math.max(1,(p.reorderLevel||5)*2-p.stock))}</td>
+    <td class="rowactions"><button class="btn sm gold" onclick="openStockAdjustPicker()">Restock</button></td></tr>`).join('') ||
+    `<tr><td colspan="6" class="empty"><div class="big">✅</div>All items are sufficiently stocked</td></tr>`}
+  </tbody></table></div></div>
+  <div class="card"><div class="card-head"><h3 style="margin:0;">Expiring / Expired Products</h3></div>
+  <div class="section-note">Products within ${SETTINGS.expiryWarnDays||30} days of their expiry date (change this window in Settings), or already expired.</div>
+  <div class="tablewrap"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Mfg Date</th><th>Expiry Date</th><th>Status</th><th></th></tr></thead><tbody>
+  ${expiring.map(p=>{const st=expiryStatus(p); return `<tr><td><b>${escapeHtml(p.name)}</b></td><td>${escapeHtml(p.category||'—')}</td>
+    <td class="num">${fmtNum(p.stock)} ${escapeHtml(p.unit||'')}</td>
+    <td>${p.mfgDate?fmtDate(p.mfgDate):'—'}</td><td>${fmtDate(p.expiryDate)}</td>
+    <td><span class="pill ${st==='expired'?'danger':'warn'}">${st==='expired'?'expired':'expiring soon'}</span></td>
+    <td class="rowactions"><button class="iconbtn" title="Edit" onclick='openProductForm(${JSON.stringify(p.id)})'>✎</button></td></tr>`;}).join('') ||
+    `<tr><td colspan="7" class="empty"><div class="big">✅</div>No products expiring soon</td></tr>`}
+  </tbody></table></div></div>`;
+};
+
+
+/* ===================== UDHAR KHATA (CREDIT LEDGER) ===================== */
+let khataFilter={q:''};
+let khataPage=1;
+RENDERERS.khata=async function(){
+  const el=document.getElementById('page-khata');
+  el.innerHTML=`
+  <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));" id="khata-kpi"></div>
+  <div class="card-head" style="margin-bottom:14px;">
+    <input id="kf-q" style="max-width:280px;" placeholder="Search customers…" value="${escapeHtml(khataFilter.q)}">
+    <h3 style="margin:0;flex:1;"></h3>
+    <button class="btn ghost" onclick="sendAllKhataReminders()">💬 Remind All</button> <button class="btn gold" onclick="openKhataEntry()">+ Add Udhar / Payment</button>
+  </div>
+  <div class="card"><div class="tablewrap"><table><thead><tr><th>Customer</th><th>Phone</th><th>Balance Due</th><th></th></tr></thead><tbody id="khata-tbody"></tbody></table></div>
+  <div class="pager" id="khata-pager"></div></div>`;
+  document.getElementById('kf-q').addEventListener('input',debounce(e=>{khataFilter.q=e.target.value;khataPage=1;renderKhataTable();},250));
+  renderKhataTable();
+};
+function renderKhataTable(){
+  const balMap=getBalanceMap();
+  const withHistory=new Set(CACHE.khataTx.map(t=>t.customerId));
+  let rows=CACHE.customers
+    .filter(c=>withHistory.has(c.id) || (balMap.get(c.id)||0)!==0)
+    .map(c=>({c,bal:balMap.get(c.id)||0}));
+  if(khataFilter.q){
+    const q=khataFilter.q.toLowerCase();
+    rows=rows.filter(r=>r.c.name.toLowerCase().includes(q)||(r.c.phone||'').includes(q));
+  }
+  rows.sort((a,b)=>b.bal-a.bal);
+  let totalDue=0, owingCount=0;
+  for(const v of balMap.values()){ if(v>0){ totalDue+=v; owingCount++; } }
+  document.getElementById('khata-kpi').innerHTML=`
+    <div class="kpi danger"><div class="lbl">Total Udhar Outstanding</div><div class="val num">${fmtMoney(totalDue)}</div><div class="sub">${owingCount} customers owe you</div></div>`;
+  const perPage=30; const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+  khataPage=Math.min(khataPage,totalPages);
+  const pageRows=rows.slice((khataPage-1)*perPage,khataPage*perPage);
+  document.getElementById('khata-tbody').innerHTML=pageRows.map(r=>`<tr><td><b>${escapeHtml(r.c.name)}</b></td><td>${escapeHtml(r.c.phone||'—')}</td>
+    <td class="num" style="font-weight:700;color:${r.bal>0?'var(--danger)':'var(--ok)'}">${fmtMoney(r.bal)}</td>
+    <td class="rowactions">
+      <button class="iconbtn" title="Statement" onclick="openKhataStatement('${r.c.id}')">📄</button>
+      ${r.bal>0?`<button class="iconbtn wa" title="Remind on WhatsApp" onclick="waKhataReminder('${r.c.id}')">💬</button>`:''}
+    </td></tr>`).join('') || `<tr><td colspan="4" class="empty"><div class="big">✍</div>No udhar entries yet</td></tr>`;
+  document.getElementById('khata-pager').innerHTML=`Page ${khataPage} of ${totalPages} · ${rows.length} customers
+    <button class="iconbtn" onclick="khataPage=Math.max(1,khataPage-1);renderKhataTable();">‹</button>
+    <button class="iconbtn" onclick="khataPage=Math.min(${totalPages},khataPage+1);renderKhataTable();">›</button>`;
+}
+function openKhataEntry(presetCust){
+  const opts=CACHE.customers.map(c=>`<option value="${c.id}" ${c.id===presetCust?'selected':''}>${escapeHtml(c.name)}</option>`).join('');
+  const body=`
+  <div class="field"><label>Customer</label><select id="kf-cust">${opts||'<option value="">Add a customer first</option>'}</select></div>
+  <div class="fieldrow">
+    <div class="field"><label>Type</label><select id="kf-type"><option value="udhar">Udhar given (they owe more)</option><option value="payment">Payment received (reduce due)</option></select></div>
+    <div class="field"><label>Amount ₹</label><input type="number" id="kf-amt" min="0.01" step="0.01"></div>
+  </div>
+  <div class="field"><label>Date</label><input type="date" id="kf-date" value="${todayISO()}"></div>
+  <div class="field"><label>Note</label><input id="kf-note" placeholder="e.g. Groceries on credit"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveKhataEntry()">Save</button>`;
+  openModal('Udhar / Payment Entry',body,foot);
+}
+async function saveKhataEntry(){
+  const custId=document.getElementById('kf-cust').value;
+  const amt=Number(document.getElementById('kf-amt').value||0);
+  if(!custId||!amt){toast('Select customer and amount','err');return;}
+  const t={id:uid(),customerId:custId,date:document.getElementById('kf-date').value||todayISO(),
+    type:document.getElementById('kf-type').value==='udhar'?'udhar':'payment',
+    amount:amt, note:document.getElementById('kf-note').value.trim(), createdAt:Date.now()};
+  await dbPut('khataTx',t); await reloadCache('khataTx');
+  closeModal(); toast('Entry saved'); if(currentPage==='khata') RENDERERS.khata(); updateBadges();
+}
+function openKhataStatement(custId){
+  const c=CACHE.customers.find(c=>c.id===custId);
+  const txs=CACHE.khataTx.filter(t=>t.customerId===custId).sort((a,b)=>a.date.localeCompare(b.date)||a.createdAt-b.createdAt);
+  let running=0;
+  const printRows=txs.map(t=>{running += t.type==='udhar'?t.amount:-t.amount; return `<tr><td>${fmtDate(t.date)}</td><td>${escapeHtml(t.note||(t.type==='udhar'?'Udhar':'Payment'))}</td>
+    <td class="num" style="color:var(--danger)">${t.type==='udhar'?fmtMoney(t.amount):''}</td>
+    <td class="num" style="color:var(--ok)">${t.type==='payment'?fmtMoney(t.amount):''}</td>
+    <td class="num">${fmtMoney(running)}</td></tr>`;}).join('');
+  const manageRows=txs.slice().reverse().map(t=>`<tr>
+    <td>${fmtDate(t.date)}</td>
+    <td><span class="pill ${t.type==='udhar'?'danger':'ok'}">${t.type}</span></td>
+    <td>${escapeHtml(t.note||'—')}</td>
+    <td class="num">${fmtMoney(t.amount)}</td>
+    <td class="rowactions">${t.invoiceId?`<span class="hint">via invoice — <a href="#" onclick="closeModal();editInvoice('${t.invoiceId}');return false;">edit invoice</a></span>`:
+      `<button class="iconbtn" title="Edit" onclick="editKhataTx('${t.id}','${custId}')">✎</button><button class="iconbtn" title="Delete" onclick="deleteKhataTx('${t.id}','${custId}')">🗑</button>`}</td>
+    </tr>`).join('');
+  const body=`
+    <div class="card-head" style="margin:0 0 10px;"><h3 style="margin:0;font-size:14px;">Manage Entries</h3></div>
+    <div class="tablewrap" style="margin-bottom:18px;"><table><thead><tr><th>Date</th><th>Type</th><th>Note</th><th>Amount</th><th></th></tr></thead>
+    <tbody>${manageRows||'<tr><td colspan="5" class="empty">No transactions</td></tr>'}</tbody></table></div>
+    <div id="khata-print"><div style="text-align:center;margin-bottom:10px;">
+    <div style="font-family:Fraunces,serif;font-size:19px;font-weight:700;">${escapeHtml(SETTINGS.shopName||'My Shop')}</div>
+    <div style="font-size:13px;">Udhar Statement — ${escapeHtml(c.name)} ${c.phone?'('+c.phone+')':''}</div></div>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr style="border-bottom:1px solid #999;">
+    <th style="text-align:left;padding:4px;">Date</th><th style="text-align:left;padding:4px;">Note</th><th style="padding:4px;">Udhar</th><th style="padding:4px;">Paid</th><th style="padding:4px;">Balance</th></tr></thead>
+    <tbody>${printRows||'<tr><td colspan="5" style="padding:10px;text-align:center;color:#999;">No transactions</td></tr>'}</tbody></table>
+    <div style="text-align:right;margin-top:10px;font-size:16px;font-weight:700;">Current Balance: ${fmtMoney(running)}</div></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Close</button><button class="btn wa" onclick="waKhataReminder('${custId}')">💬 Send</button><button class="btn gold" onclick="printKhataStatement()">🖨 Print</button>`;
+  openModal('Statement',body,foot,true);
+}
+function printKhataStatement(){
+  const w=window.open('','_blank');
+  w.document.write('<html><head><title>Statement</title></head><body>'+document.getElementById('khata-print').innerHTML+'</body></html>');
+  w.document.close(); w.print();
+}
+function editKhataTx(txId,custId){
+  const t=CACHE.khataTx.find(t=>t.id===txId);
+  if(!t) return;
+  const body=`
+  <div class="fieldrow">
+    <div class="field"><label>Type</label><select id="ekf-type"><option value="udhar" ${t.type==='udhar'?'selected':''}>Udhar given</option><option value="payment" ${t.type==='payment'?'selected':''}>Payment received</option></select></div>
+    <div class="field"><label>Amount ₹</label><input type="number" id="ekf-amt" value="${t.amount}" min="0.01" step="0.01"></div>
+  </div>
+  <div class="field"><label>Date</label><input type="date" id="ekf-date" value="${t.date}"></div>
+  <div class="field"><label>Note</label><input id="ekf-note" value="${escapeHtml(t.note||'')}"></div>`;
+  const foot=`<button class="btn ghost" onclick="openKhataStatement('${custId}')">Cancel</button><button class="btn gold" onclick="saveKhataTxEdit('${txId}','${custId}')">Save</button>`;
+  openModal('Edit Entry',body,foot);
+}
+async function saveKhataTxEdit(txId,custId){
+  const t=CACHE.khataTx.find(t=>t.id===txId);
+  const amount=Number(document.getElementById('ekf-amt').value||0);
+  if(!amount){toast('Enter amount','err');return;}
+  t.type=document.getElementById('ekf-type').value;
+  t.amount=amount;
+  t.date=document.getElementById('ekf-date').value||t.date;
+  t.note=document.getElementById('ekf-note').value.trim();
+  await dbPut('khataTx',t); await reloadCache('khataTx');
+  toast('Entry updated'); updateBadges();
+  openKhataStatement(custId);
+  if(currentPage==='khata') RENDERERS.khata();
+}
+async function deleteKhataTx(txId,custId){
+  if(!confirm('Delete this entry?')) return;
+  await dbDel('khataTx',txId); await reloadCache('khataTx');
+  toast('Entry deleted'); updateBadges();
+  openKhataStatement(custId);
+  if(currentPage==='khata') RENDERERS.khata();
+}
+function waKhataReminder(custId){
+  const c=CACHE.customers.find(c=>c.id===custId);
+  const bal=customerBalance(custId);
+  const msg=`Namaste ${c.name}! Aapka ${SETTINGS.shopName||'shop'} par udhar balance ${fmtMoney(bal)} hai. Kripya jald bhugtan karein. Dhanyawad!`;
+  const phone=c.phone?(SETTINGS.waCountryCode+c.phone.replace(/\D/g,'').slice(-10)):'';
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+async function sendAllKhataReminders(){
+  const due=CACHE.customers.filter(c=>customerBalance(c.id)>0 && c.phone);
+  if(!due.length){toast('No customers with dues and phone numbers','err');return;}
+  if(!confirm(`Open WhatsApp reminder for ${due.length} customers, one tab at a time?`)) return;
+  for(const c of due){ waKhataReminder(c.id); await new Promise(r=>setTimeout(r,600)); }
+}
+
+/* ===================== CUSTOMER MANAGEMENT ===================== */
+let custFilter={q:''};
+let custPage=1;
+RENDERERS.customers=async function(){
+  const el=document.getElementById('page-customers');
+  el.innerHTML=`
+  <div class="card-head" style="margin-bottom:14px;">
+    <input id="cf-q" style="max-width:280px;" placeholder="Search customers…" value="${escapeHtml(custFilter.q)}">
+    <button class="btn gold" onclick="openCustomerForm()">+ Add Customer</button>
+  </div>
+  <div class="card"><div class="tablewrap"><table><thead><tr><th>Name</th><th>Phone</th><th>GSTIN</th><th>Purchases</th><th>Udhar Due</th><th></th></tr></thead><tbody id="cust-tbody"></tbody></table></div>
+  <div class="pager" id="cust-pager"></div></div>`;
+  document.getElementById('cf-q').addEventListener('input',debounce(e=>{custFilter.q=e.target.value;custPage=1;renderCustTable();},250));
+  renderCustTable();
+};
+function renderCustTable(){
+  let rows=CACHE.customers.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  if(custFilter.q) rows=rows.filter(c=>c.name.toLowerCase().includes(custFilter.q.toLowerCase())||(c.phone||'').includes(custFilter.q));
+  const perPage=30; const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+  custPage=Math.min(custPage,totalPages);
+  const pageRows=rows.slice((custPage-1)*perPage,custPage*perPage);
+  const purchaseMap=getPurchaseMap(); const balMap=getBalanceMap();
+  document.getElementById('cust-tbody').innerHTML=pageRows.map(c=>{
+    const purch=purchaseMap.get(c.id)||{count:0,total:0};
+    const bal=balMap.get(c.id)||0;
+    return `<tr><td><b>${escapeHtml(c.name)}</b>${c.address?`<div class="hint">${escapeHtml(c.address)}</div>`:''}</td>
+    <td>${escapeHtml(c.phone||'—')}</td><td>${escapeHtml(c.gstin||'—')}</td>
+    <td>${purch.count} orders <div class="hint">${fmtMoney(purch.total)}</div></td>
+    <td class="num" style="color:${bal>0?'var(--danger)':'var(--ok)'};font-weight:700;">${fmtMoney(bal)}</td>
+    <td class="rowactions">
+      <button class="iconbtn" title="Edit" onclick='openCustomerForm(${JSON.stringify(c.id)})'>✎</button>
+      <button class="iconbtn" title="Udhar entry" onclick="openKhataEntry('${c.id}')">✍</button>
+      <button class="iconbtn" title="Delete" onclick="deleteCustomer('${c.id}')">🗑</button>
+    </td></tr>`;
+  }).join('') || `<tr><td colspan="6" class="empty"><div class="big">👤</div>No customers yet</td></tr>`;
+  document.getElementById('cust-pager').innerHTML=`Page ${custPage} of ${totalPages} · ${rows.length} customers
+    <button class="iconbtn" onclick="custPage=Math.max(1,custPage-1);renderCustTable();">‹</button>
+    <button class="iconbtn" onclick="custPage=Math.min(${totalPages},custPage+1);renderCustTable();">›</button>`;
+}
+function openCustomerForm(id){
+  const c=id?CACHE.customers.find(c=>c.id===id):{id:uid(),name:'',phone:'',address:'',gstin:'',state:SETTINGS.shopState||''};
+  const body=`
+  <div class="fieldrow">
+    <div class="field"><label>Name *</label><input id="cf-name" value="${escapeHtml(c.name)}"></div>
+    <div class="field"><label>Phone</label><input id="cf-phone" value="${escapeHtml(c.phone||'')}"></div>
+  </div>
+  <div class="field"><label>Address</label><input id="cf-address" value="${escapeHtml(c.address||'')}"></div>
+  <div class="fieldrow">
+    <div class="field"><label>GSTIN (optional)</label><input id="cf-gstin" value="${escapeHtml(c.gstin||'')}"></div>
+    <div class="field"><label>State</label><input id="cf-state" value="${escapeHtml(c.state||'')}"></div>
+  </div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveCustomer('${c.id}')">Save</button>`;
+  openModal(id?'Edit Customer':'Add Customer',body,foot);
+}
+async function saveCustomer(id){
+  const name=document.getElementById('cf-name').value.trim();
+  if(!name){toast('Name required','err');return;}
+  const existing=CACHE.customers.find(c=>c.id===id)||{};
+  const c={id,name,phone:document.getElementById('cf-phone').value.trim(),address:document.getElementById('cf-address').value.trim(),
+    gstin:document.getElementById('cf-gstin').value.trim(),state:document.getElementById('cf-state').value.trim(),createdAt:existing.createdAt||Date.now()};
+  await dbPut('customers',c); await reloadCache('customers');
+  closeModal(); toast('Customer saved'); renderCustTable(); updateBadges();
+}
+async function deleteCustomer(id){
+  if(!confirm('Delete this customer? Their udhar history will remain linked but hidden.')) return;
+  await dbDel('customers',id); await reloadCache('customers');
+  toast('Customer deleted'); renderCustTable(); updateBadges();
+}
+
+
+/* ===================== PROFIT & LOSS REPORT ===================== */
+let plRange={from:'',to:''};
+RENDERERS.pl=async function(){
+  const el=document.getElementById('page-pl');
+  const now=new Date();
+  if(!plRange.from){ const first=new Date(now.getFullYear(),now.getMonth(),1); plRange.from=first.toISOString().slice(0,10); plRange.to=todayISO(); }
+  el.innerHTML=`
+  <div class="card-head" style="margin-bottom:14px;">
+    <div class="fieldrow" style="flex:1;max-width:420px;">
+      <div class="field" style="margin:0;"><label>From</label><input type="date" id="pl-from" value="${plRange.from}"></div>
+      <div class="field" style="margin:0;"><label>To</label><input type="date" id="pl-to" value="${plRange.to}"></div>
+    </div>
+    <button class="btn gold" onclick="applyPLRange()">Apply</button>
+  </div>
+  <div id="pl-body"></div>`;
+  document.getElementById('pl-from').value=plRange.from; document.getElementById('pl-to').value=plRange.to;
+  renderPLBody();
+};
+function applyPLRange(){ plRange.from=document.getElementById('pl-from').value; plRange.to=document.getElementById('pl-to').value; renderPLBody(); }
+let chartPL;
+function renderPLBody(){
+  const invs=CACHE.invoices.filter(i=>i.date>=plRange.from && i.date<=plRange.to);
+  const revenue=invs.reduce((a,i)=>a+i.grandTotal,0);
+  const taxCollected=invs.reduce((a,i)=>a+i.taxTotal,0);
+  const pmap=getProductMap();
+  const cogs=invs.reduce((a,i)=>a+i.items.reduce((s,it)=>{const p=pmap.get(it.productId);return s+(p?Number(p.purchasePrice||0)*it.qty:0);},0),0);
+  const grossProfit=revenue-taxCollected-cogs;
+  const exps=CACHE.expenses.filter(e=>e.date>=plRange.from && e.date<=plRange.to);
+  const expTotal=exps.reduce((a,e)=>a+Number(e.amount),0);
+  const netProfit=grossProfit-expTotal;
+  const expByCat={}; exps.forEach(e=>{expByCat[e.category]=(expByCat[e.category]||0)+Number(e.amount);});
+  const box=document.getElementById('pl-body');
+  box.innerHTML=`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="lbl">Revenue (incl. tax)</div><div class="val num">${fmtMoney(revenue)}</div><div class="sub">${invs.length} invoices</div></div>
+    <div class="kpi"><div class="lbl">Cost of Goods Sold</div><div class="val num">${fmtMoney(cogs)}</div></div>
+    <div class="kpi ok"><div class="lbl">Gross Profit</div><div class="val num">${fmtMoney(grossProfit)}</div></div>
+    <div class="kpi danger"><div class="lbl">Expenses</div><div class="val num">${fmtMoney(expTotal)}</div></div>
+    <div class="kpi ${netProfit>=0?'ok':'danger'}"><div class="lbl">Net Profit</div><div class="val num">${fmtMoney(netProfit)}</div></div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div class="card-head"><h3>Daily Revenue vs Expenses</h3></div><canvas id="cv-pl" height="120"></canvas></div>
+    <div class="card"><div class="card-head"><h3>Expenses by Category</h3></div>
+      ${Object.keys(expByCat).length?Object.entries(expByCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;"><span>${escapeHtml(c)}</span><b class="num">${fmtMoney(v)}</b></div>`).join(''):
+      `<div class="empty">No expenses in range</div>`}
+    </div>
+  </div>`;
+  const revByDay=new Map(), expByDay=new Map();
+  for(const i of invs) revByDay.set(i.date,(revByDay.get(i.date)||0)+i.grandTotal);
+  for(const e of exps) expByDay.set(e.date,(expByDay.get(e.date)||0)+Number(e.amount));
+  const days=[]; let d=new Date(plRange.from); const end=new Date(plRange.to);
+  while(d<=end && days.length<62){ const iso=d.toISOString().slice(0,10);
+    days.push({iso,rev:revByDay.get(iso)||0,exp:expByDay.get(iso)||0});
+    d.setDate(d.getDate()+1);
+  }
+  if(chartPL) chartPL.destroy();
+  chartPL=new Chart(document.getElementById('cv-pl'),{type:'bar',data:{labels:days.map(x=>x.iso.slice(5)),datasets:[
+    {label:'Revenue',data:days.map(x=>x.rev),backgroundColor:'#2F6F6B'},
+    {label:'Expenses',data:days.map(x=>x.exp),backgroundColor:'#B23B33'}
+  ]},options:{plugins:{legend:{position:'bottom'}}}});
+}
+
+/* ===================== EXPENSE MANAGER ===================== */
+let expFilter={q:'',cat:'all'};
+let expPage=1;
+RENDERERS.expenses=async function(){
+  const el=document.getElementById('page-expenses');
+  const cats=[...new Set(CACHE.expenses.map(e=>e.category).filter(Boolean))];
+  const defaultCats=['Rent','Electricity','Salaries','Transport','Packaging','Maintenance','Misc'];
+  el.innerHTML=`
+  <div class="card-head" style="margin-bottom:14px;">
+    <div class="fieldrow" style="flex:1;">
+      <input id="ef-q" placeholder="Search note…">
+      <select id="ef-cat"><option value="all">All categories</option>${[...new Set([...defaultCats,...cats])].map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select>
+    </div>
+    <button class="btn gold" onclick="openExpenseForm()">+ Add Expense</button>
+  </div>
+  <div class="card"><div class="tablewrap"><table><thead><tr><th>Date</th><th>Category</th><th>Note</th><th>Mode</th><th>Amount</th><th></th></tr></thead><tbody id="exp-tbody"></tbody></table></div>
+  <div class="pager" id="exp-pager"></div></div>`;
+  document.getElementById('ef-q').addEventListener('input',debounce(e=>{expFilter.q=e.target.value;expPage=1;renderExpTable();},250));
+  document.getElementById('ef-cat').addEventListener('change',e=>{expFilter.cat=e.target.value;expPage=1;renderExpTable();});
+  renderExpTable();
+};
+function renderExpTable(){
+  let rows=CACHE.expenses.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(expFilter.q) rows=rows.filter(e=>(e.note||'').toLowerCase().includes(expFilter.q.toLowerCase()));
+  if(expFilter.cat && expFilter.cat!=='all') rows=rows.filter(e=>e.category===expFilter.cat);
+  const perPage=40; const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+  expPage=Math.min(expPage,totalPages);
+  const pageRows=rows.slice((expPage-1)*perPage,expPage*perPage);
+  document.getElementById('exp-tbody').innerHTML=pageRows.map(e=>`
+    <tr><td>${fmtDate(e.date)}</td><td><span class="pill info">${escapeHtml(e.category)}</span></td><td>${escapeHtml(e.note||'—')}</td>
+    <td>${escapeHtml(e.mode||'Cash')}</td><td class="num" style="font-weight:700">${fmtMoney(e.amount)}</td>
+    <td class="rowactions"><button class="iconbtn" onclick='openExpenseForm(${JSON.stringify(e.id)})'>✎</button><button class="iconbtn" onclick="deleteExpense('${e.id}')">🗑</button></td></tr>`).join('')
+    || `<tr><td colspan="6" class="empty"><div class="big">💸</div>No expenses recorded</td></tr>`;
+  document.getElementById('exp-pager').innerHTML=`Page ${expPage} of ${totalPages} · ${rows.length} expenses
+    <button class="iconbtn" onclick="expPage=Math.max(1,expPage-1);renderExpTable();">‹</button>
+    <button class="iconbtn" onclick="expPage=Math.min(${totalPages},expPage+1);renderExpTable();">›</button>`;
+}
+function openExpenseForm(id){
+  const e=id?CACHE.expenses.find(e=>e.id===id):{id:uid(),date:todayISO(),category:'Misc',note:'',amount:0,mode:'Cash'};
+  const body=`
+  <div class="fieldrow">
+    <div class="field"><label>Date</label><input type="date" id="ef2-date" value="${e.date}"></div>
+    <div class="field"><label>Category</label><input id="ef2-cat" value="${escapeHtml(e.category)}" list="expcatlist"></div>
+  </div>
+  <datalist id="expcatlist"><option>Rent</option><option>Electricity</option><option>Salaries</option><option>Transport</option><option>Packaging</option><option>Maintenance</option><option>Misc</option></datalist>
+  <div class="fieldrow">
+    <div class="field"><label>Amount ₹</label><input type="number" id="ef2-amt" value="${e.amount}"></div>
+    <div class="field"><label>Payment mode</label><select id="ef2-mode"><option ${e.mode==='Cash'?'selected':''}>Cash</option><option ${e.mode==='UPI'?'selected':''}>UPI</option><option ${e.mode==='Bank'?'selected':''}>Bank</option><option ${e.mode==='Card'?'selected':''}>Card</option></select></div>
+  </div>
+  <div class="field"><label>Note</label><input id="ef2-note" value="${escapeHtml(e.note||'')}"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveExpense('${e.id}')">Save</button>`;
+  openModal(id?'Edit Expense':'Add Expense',body,foot);
+}
+async function saveExpense(id){
+  const amount=Number(document.getElementById('ef2-amt').value||0);
+  if(!amount){toast('Enter amount','err');return;}
+  const existing=CACHE.expenses.find(e=>e.id===id)||{};
+  const e={id,date:document.getElementById('ef2-date').value||todayISO(),category:document.getElementById('ef2-cat').value.trim()||'Misc',
+    amount,mode:document.getElementById('ef2-mode').value,note:document.getElementById('ef2-note').value.trim(),createdAt:existing.createdAt||Date.now()};
+  await dbPut('expenses',e); await reloadCache('expenses');
+  closeModal(); toast('Expense saved'); renderExpTable();
+  if(currentPage==='dashboard') RENDERERS.dashboard();
+}
+async function deleteExpense(id){
+  if(!confirm('Delete this expense?')) return;
+  await dbDel('expenses',id); await reloadCache('expenses');
+  toast('Expense deleted'); renderExpTable();
+}
+
+
+/* ===================== SUPPLIERS & STAFF MANAGER ===================== */
+let partiesTab='suppliers';
+RENDERERS.parties=async function(){
+  const el=document.getElementById('page-parties');
+  el.innerHTML=`
+  <div class="tabs">
+    <div class="tab ${partiesTab==='suppliers'?'active':''}" onclick="switchPartiesTab('suppliers')">Suppliers</div>
+    <div class="tab ${partiesTab==='staff'?'active':''}" onclick="switchPartiesTab('staff')">Staff</div>
+  </div>
+  <div id="parties-body"></div>`;
+  renderPartiesBody();
+};
+function switchPartiesTab(t){ partiesTab=t; partiesPage=1; RENDERERS.parties(); }
+let partiesPage=1;
+function renderPartiesBody(){
+  const box=document.getElementById('parties-body');
+  const perPage=40;
+  if(partiesTab==='suppliers'){
+    const rows=CACHE.suppliers;
+    const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+    partiesPage=Math.min(partiesPage,totalPages);
+    const pageRows=rows.slice((partiesPage-1)*perPage,partiesPage*perPage);
+    box.innerHTML=`<div class="card-head" style="margin-bottom:14px;"><h3 style="margin:0;">Suppliers</h3><button class="btn ghost" onclick="openImportModal('suppliers')">📥 Import</button> <button class="btn gold" onclick="openSupplierForm()">+ Add Supplier</button></div>
+    <div class="card"><div class="tablewrap"><table><thead><tr><th>Name</th><th>Phone</th><th>GSTIN</th><th>Supplies</th><th></th></tr></thead><tbody>
+    ${pageRows.map(s=>`<tr><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.phone||'—')}</td><td>${escapeHtml(s.gstin||'—')}</td><td>${escapeHtml(s.items||'—')}</td>
+      <td class="rowactions">
+        ${s.phone?`<button class="iconbtn wa" title="WhatsApp" onclick="waSupplierMsg('${s.id}')">💬</button>`:''}
+        <button class="iconbtn" onclick='openSupplierForm(${JSON.stringify(s.id)})'>✎</button>
+        <button class="iconbtn" onclick="deleteSupplier('${s.id}')">🗑</button></td></tr>`).join('') || `<tr><td colspan="5" class="empty"><div class="big">🚚</div>No suppliers yet</td></tr>`}
+    </tbody></table></div>
+    <div class="pager">Page ${partiesPage} of ${totalPages} · ${rows.length} suppliers
+      <button class="iconbtn" onclick="partiesPage=Math.max(1,partiesPage-1);renderPartiesBody();">‹</button>
+      <button class="iconbtn" onclick="partiesPage=Math.min(${totalPages},partiesPage+1);renderPartiesBody();">›</button>
+    </div></div>`;
+  } else {
+    const rows=CACHE.staff;
+    const totalPages=Math.max(1,Math.ceil(rows.length/perPage));
+    partiesPage=Math.min(partiesPage,totalPages);
+    const pageRows=rows.slice((partiesPage-1)*perPage,partiesPage*perPage);
+    box.innerHTML=`<div class="card-head" style="margin-bottom:14px;"><h3 style="margin:0;">Staff</h3><button class="btn ghost" onclick="openImportModal('staff')">📥 Import</button> <button class="btn gold" onclick="openStaffForm()">+ Add Staff</button></div>
+    <div class="card"><div class="tablewrap"><table><thead><tr><th>Name</th><th>Role</th><th>Phone</th><th>Monthly Salary</th><th>Joined</th><th></th></tr></thead><tbody>
+    ${pageRows.map(s=>`<tr><td><b>${escapeHtml(s.name)}</b></td><td>${escapeHtml(s.role||'—')}</td><td>${escapeHtml(s.phone||'—')}</td>
+      <td class="num">${fmtMoney(s.salary)}</td><td>${fmtDate(s.joined)}</td>
+      <td class="rowactions">
+        <button class="iconbtn" title="Pay salary" onclick="openSalaryPay('${s.id}')">₹</button>
+        <button class="iconbtn" onclick='openStaffForm(${JSON.stringify(s.id)})'>✎</button>
+        <button class="iconbtn" onclick="deleteStaff('${s.id}')">🗑</button></td></tr>`).join('') || `<tr><td colspan="6" class="empty"><div class="big">🧑‍💼</div>No staff added yet</td></tr>`}
+    </tbody></table></div>
+    <div class="pager">Page ${partiesPage} of ${totalPages} · ${rows.length} staff
+      <button class="iconbtn" onclick="partiesPage=Math.max(1,partiesPage-1);renderPartiesBody();">‹</button>
+      <button class="iconbtn" onclick="partiesPage=Math.min(${totalPages},partiesPage+1);renderPartiesBody();">›</button>
+    </div></div>`;
+  }
+}
+function openSupplierForm(id){
+  const s=id?CACHE.suppliers.find(s=>s.id===id):{id:uid(),name:'',phone:'',gstin:'',items:''};
+  const body=`<div class="field"><label>Name *</label><input id="sf2-name" value="${escapeHtml(s.name)}"></div>
+  <div class="fieldrow"><div class="field"><label>Phone</label><input id="sf2-phone" value="${escapeHtml(s.phone||'')}"></div>
+  <div class="field"><label>GSTIN</label><input id="sf2-gstin" value="${escapeHtml(s.gstin||'')}"></div></div>
+  <div class="field"><label>Items supplied</label><input id="sf2-items" value="${escapeHtml(s.items||'')}"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveSupplier('${s.id}')">Save</button>`;
+  openModal(id?'Edit Supplier':'Add Supplier',body,foot);
+}
+async function saveSupplier(id){
+  const name=document.getElementById('sf2-name').value.trim();
+  if(!name){toast('Name required','err');return;}
+  const existing=CACHE.suppliers.find(s=>s.id===id)||{};
+  const s={id,name,phone:document.getElementById('sf2-phone').value.trim(),gstin:document.getElementById('sf2-gstin').value.trim(),
+    items:document.getElementById('sf2-items').value.trim(),createdAt:existing.createdAt||Date.now()};
+  await dbPut('suppliers',s); await reloadCache('suppliers');
+  closeModal(); toast('Supplier saved'); renderPartiesBody();
+}
+async function deleteSupplier(id){ if(!confirm('Delete supplier?'))return; await dbDel('suppliers',id); await reloadCache('suppliers'); renderPartiesBody(); toast('Deleted'); }
+function waSupplierMsg(id){
+  const s=CACHE.suppliers.find(s=>s.id===id);
+  const msg=`Namaste ${s.name}, ${SETTINGS.shopName||'our shop'} ki taraf se — kya aap stock available karwa sakte hain?`;
+  window.open(`https://wa.me/${SETTINGS.waCountryCode+s.phone.replace(/\D/g,'').slice(-10)}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function openStaffForm(id){
+  const s=id?CACHE.staff.find(s=>s.id===id):{id:uid(),name:'',role:'',phone:'',salary:0,joined:todayISO()};
+  const body=`<div class="fieldrow"><div class="field"><label>Name *</label><input id="stf-name" value="${escapeHtml(s.name)}"></div>
+  <div class="field"><label>Role</label><input id="stf-role" value="${escapeHtml(s.role||'')}"></div></div>
+  <div class="fieldrow"><div class="field"><label>Phone</label><input id="stf-phone" value="${escapeHtml(s.phone||'')}"></div>
+  <div class="field"><label>Monthly Salary ₹</label><input type="number" id="stf-salary" value="${s.salary}"></div></div>
+  <div class="field"><label>Joining Date</label><input type="date" id="stf-joined" value="${s.joined}"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveStaff('${s.id}')">Save</button>`;
+  openModal(id?'Edit Staff':'Add Staff',body,foot);
+}
+async function saveStaff(id){
+  const name=document.getElementById('stf-name').value.trim();
+  if(!name){toast('Name required','err');return;}
+  const existing=CACHE.staff.find(s=>s.id===id)||{};
+  const s={id,name,role:document.getElementById('stf-role').value.trim(),phone:document.getElementById('stf-phone').value.trim(),
+    salary:Number(document.getElementById('stf-salary').value||0),joined:document.getElementById('stf-joined').value,createdAt:existing.createdAt||Date.now()};
+  await dbPut('staff',s); await reloadCache('staff');
+  closeModal(); toast('Staff saved'); renderPartiesBody();
+}
+async function deleteStaff(id){ if(!confirm('Delete staff member?'))return; await dbDel('staff',id); await reloadCache('staff'); renderPartiesBody(); toast('Deleted'); }
+function openSalaryPay(staffId){
+  const body=`<div class="fieldrow"><div class="field"><label>Amount ₹</label><input type="number" id="sp-amt"></div>
+  <div class="field"><label>Date</label><input type="date" id="sp-date" value="${todayISO()}"></div></div>
+  <div class="field"><label>Note</label><input id="sp-note" placeholder="e.g. Salary for August"></div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveSalaryPay('${staffId}')">Save</button>`;
+  openModal('Pay Salary',body,foot);
+}
+async function saveSalaryPay(staffId){
+  const amount=Number(document.getElementById('sp-amt').value||0);
+  if(!amount){toast('Enter amount','err');return;}
+  await dbPut('staffLog',{id:uid(),staffId,date:document.getElementById('sp-date').value||todayISO(),amount,note:document.getElementById('sp-note').value.trim(),createdAt:Date.now()});
+  await dbPut('expenses',{id:uid(),date:document.getElementById('sp-date').value||todayISO(),category:'Salaries',amount,note:'Salary — '+ (CACHE.staff.find(s=>s.id===staffId)||{}).name,mode:'Cash',createdAt:Date.now()});
+  await reloadCache('staffLog'); await reloadCache('expenses');
+  closeModal(); toast('Salary payment recorded (added to Expenses)');
+}
+
+
+/* ===================== AI BUSINESS ASSISTANT ===================== */
+let aiHistory=[];
+function businessSnapshot(){
+  const k=computeKPIs();
+  const low=CACHE.products.filter(p=>Number(p.stock)<=Number(p.reorderLevel||SETTINGS.lowStockDefault||5)).map(p=>p.name);
+  const expiring=CACHE.products.filter(p=>expiryStatus(p)).map(p=>p.name+' ('+expiryStatus(p)+')');
+  const topDue=CACHE.customers.map(c=>({n:c.name,b:customerBalance(c.id)})).filter(x=>x.b>0).sort((a,b)=>b.b-a.b).slice(0,8);
+  const topProducts={}; CACHE.invoices.forEach(inv=>inv.items.forEach(it=>{topProducts[it.name]=(topProducts[it.name]||0)+it.qty;}));
+  const top=Object.entries(topProducts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  return `Shop: ${SETTINGS.shopName||'My Shop'}
+Today's sales: ${fmtMoney(k.todaySales)} | This month's sales: ${fmtMoney(k.monthSales)}
+Net profit (est. this month): ${fmtMoney(k.netProfit)}
+Total udhar (credit) outstanding: ${fmtMoney(k.udharTotal)}
+Top customers who owe money: ${topDue.map(x=>x.n+' ('+fmtMoney(x.b)+')').join(', ')||'none'}
+Low stock items (${low.length}): ${low.slice(0,15).join(', ')||'none'}
+Expiring/expired items (${expiring.length}): ${expiring.slice(0,15).join(', ')||'none'}
+Best-selling products overall: ${top.map(t=>t[0]+' x'+t[1]).join(', ')||'none'}
+Total products: ${CACHE.products.length} | Total customers: ${CACHE.customers.length} | Total invoices: ${CACHE.invoices.length}
+Month's expenses: ${fmtMoney(k.monthExpenses)}`;
+}
+RENDERERS.ai=async function(){
+  const el=document.getElementById('page-ai');
+  el.innerHTML=`
+  <div class="section-note">Ask questions about your shop's sales, stock, udhar or profit in plain English or Hindi. This uses your own Anthropic API key (set it once in Settings) — your business data is sent only when you ask a question, directly from this browser to Anthropic.</div>
+  <div>
+    <span class="chip" onclick="askAI('Give me a quick summary of my shop today')">Summary of today</span>
+    <span class="chip" onclick="askAI('Which items should I reorder soon and why?')">What to reorder?</span>
+    <span class="chip" onclick="askAI('Which customers owe me the most udhar and how should I follow up?')">Who owes me money?</span>
+    <span class="chip" onclick="askAI('How is my profit trending and what can I do to improve it?')">Improve my profit</span>
+  </div>
+  <div id="ai-chat">
+    <div id="ai-msgs"></div>
+    <div id="ai-inputrow">
+      <input id="ai-input" placeholder="Type your question…" onkeydown="if(event.key==='Enter')sendAI();">
+      <button class="btn gold" onclick="sendAI()">Ask</button>
+    </div>
+  </div>`;
+  renderAIMsgs();
+};
+function renderAIMsgs(){
+  const box=document.getElementById('ai-msgs');
+  box.innerHTML=aiHistory.map(m=>`<div class="msg ${m.role==='user'?'user':'ai'}">${escapeHtml(m.text)}</div>`).join('') ||
+    `<div class="empty"><div class="big">✦</div>Ask me anything about your shop's performance</div>`;
+  box.scrollTop=box.scrollHeight;
+}
+function askAI(q){ document.getElementById('ai-input').value=q; sendAI(); }
+async function sendAI(){
+  const input=document.getElementById('ai-input');
+  const q=input.value.trim(); if(!q) return;
+  if(!SETTINGS.anthropicApiKey){ toast('Add your Anthropic API key in Settings first','err'); navigate('settings'); return; }
+  aiHistory.push({role:'user',text:q}); input.value=''; renderAIMsgs();
+  aiHistory.push({role:'ai',text:'Thinking…'}); renderAIMsgs();
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':SETTINGS.anthropicApiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:700,
+        system:'You are a friendly business assistant for a small Indian retail shop owner. Use the shop data snapshot given to answer clearly and practically, in plain language (English, or Hindi if asked in Hindi). Keep answers concise and actionable.',
+        messages:[{role:'user',content:`Shop data snapshot:\n${businessSnapshot()}\n\nQuestion: ${q}`}]
+      })
+    });
+    const data=await resp.json();
+    aiHistory.pop();
+    if(data.error){ aiHistory.push({role:'ai',text:'Error: '+data.error.message}); }
+    else { const text=(data.content||[]).map(c=>c.text||'').join('\n'); aiHistory.push({role:'ai',text:text||'No response.'}); }
+  }catch(err){ aiHistory.pop(); aiHistory.push({role:'ai',text:'Could not reach Anthropic API. Check your internet connection and API key.'}); }
+  renderAIMsgs();
+}
+
+/* ===================== WHATSAPP AUTOMATION ===================== */
+RENDERERS.whatsapp=async function(){
+  const el=document.getElementById('page-whatsapp');
+  el.innerHTML=`
+  <div class="section-note">A static web app can't send WhatsApp messages silently in the background — WhatsApp requires either you tapping "Send" (via wa.me links, used throughout this app) or a paid WhatsApp Business API with a server. Below you can customize your message templates and trigger bulk reminders.</div>
+  <div class="card">
+    <div class="card-head"><h3>Message templates</h3></div>
+    <div class="field"><label>Invoice share message</label><textarea id="wt-invoice" rows="2">${escapeHtml(SETTINGS.tplInvoice||"Namaste {customer}! Your invoice {invoice} from {shop} dated {date} — Total: {amount} ({status}). Thank you!")}</textarea></div>
+    <div class="field"><label>Udhar reminder message</label><textarea id="wt-khata" rows="2">${escapeHtml(SETTINGS.tplKhata||"Namaste {customer}! Aapka {shop} par udhar balance {amount} hai. Kripya jald bhugtan karein. Dhanyawad!")}</textarea></div>
+    <div class="hint">Placeholders: {customer} {shop} {invoice} {date} {amount} {status}</div>
+    <button class="btn gold" style="margin-top:10px;" onclick="saveWaTemplates()">Save Templates</button>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Bulk actions</h3></div>
+    <button class="btn wa" onclick="sendAllKhataReminders()">💬 Send Udhar Reminders to all customers with dues</button>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>WhatsApp country code</h3></div>
+    <div class="field" style="max-width:200px;"><label>Country code (no +)</label><input id="wt-cc" value="${SETTINGS.waCountryCode||'91'}"></div>
+    <button class="btn ghost" onclick="saveWaCC()">Save</button>
+  </div>`;
+};
+async function saveWaTemplates(){
+  await saveSetting('tplInvoice',document.getElementById('wt-invoice').value);
+  await saveSetting('tplKhata',document.getElementById('wt-khata').value);
+  toast('Templates saved');
+}
+async function saveWaCC(){ await saveSetting('waCountryCode',document.getElementById('wt-cc').value.trim()); toast('Saved'); }
+
+/* ===================== CALENDAR WITH REMINDERS (popup style) ===================== */
+let calCursor=new Date();
+RENDERERS.calendar=async function(){
+  const el=document.getElementById('page-calendar');
+  el.innerHTML=`
+  <div class="card-head" style="margin-bottom:14px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="iconbtn" onclick="calShift(-1)">‹</button>
+      <h3 style="margin:0;min-width:150px;text-align:center;" id="cal-title"></h3>
+      <button class="iconbtn" onclick="calShift(1)">›</button>
+    </div>
+    <button class="btn gold" onclick="openReminderForm(todayISO())">+ Add Reminder</button>
+  </div>
+  <div class="card">
+    <div class="calgrid" style="margin-bottom:6px;">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dow">${d}</div>`).join('')}</div>
+    <div class="calgrid" id="cal-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Upcoming Reminders</h3></div>
+    <div id="cal-upcoming"></div>
+  </div>`;
+  renderCalGrid();
+};
+function calShift(n){ calCursor.setMonth(calCursor.getMonth()+n); renderCalGrid(); }
+function renderCalGrid(){
+  const y=calCursor.getFullYear(), m=calCursor.getMonth();
+  document.getElementById('cal-title').textContent=calCursor.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const firstDow=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const daysInPrev=new Date(y,m,0).getDate();
+  let cells=[];
+  for(let i=firstDow-1;i>=0;i--) cells.push({d:daysInPrev-i,other:true});
+  for(let d=1;d<=daysInMonth;d++) cells.push({d,other:false,iso:`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`});
+  while(cells.length%7!==0) cells.push({d:cells.length,other:true});
+  document.getElementById('cal-grid').innerHTML=cells.map(c=>{
+    if(c.other) return `<div class="calcell other"><div class="d">${c.d}</div></div>`;
+    const rems=CACHE.reminders.filter(r=>reminderAppliesToDate(r,c.iso));
+    const isToday=c.iso===todayISO();
+    return `<div class="calcell ${isToday?'today':''}" onclick="openReminderForm('${c.iso}')">
+      <div class="d">${c.d}</div>${rems.slice(0,2).map(r=>`<span class="rem">${escapeHtml(r.title)}</span>`).join('')}${rems.length>2?`<span class="hint">+${rems.length-2} more</span>`:''}
+    </div>`;
+  }).join('');
+  const upcoming=computeUpcomingReminders(10,45);
+  document.getElementById('cal-upcoming').innerHTML=upcoming.map(({r,occDate})=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);">
+      <div style="flex:1"><b style="font-size:13px;">${escapeHtml(r.title)}</b><div class="hint">${fmtDate(occDate)} ${r.time||''} ${r.repeat&&r.repeat!=='none'?'· repeats '+r.repeat:''}</div></div>
+      <button class="iconbtn" onclick="toggleReminder('${r.id}','${occDate}')">✓</button>
+      <button class="iconbtn" onclick="editReminder('${r.id}')">✎</button>
+      <button class="iconbtn" onclick="deleteReminder('${r.id}')">🗑</button>
+    </div>`).join('') || `<div class="empty">No upcoming reminders</div>`;
+}
+function openReminderForm(iso){
+  const body=`
+  <div class="fieldrow">
+    <div class="field"><label>Title *</label><input id="rf-title" placeholder="e.g. Pay electricity bill"></div>
+    <div class="field"><label>Date</label><input type="date" id="rf-date" value="${iso}"></div>
+  </div>
+  <div class="fieldrow">
+    <div class="field"><label>Time (for popup)</label><input type="time" id="rf-time"></div>
+    <div class="field"><label>Repeat</label><select id="rf-repeat"><option value="none">Does not repeat</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></div>
+  </div>`;
+  const foot=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveReminder()">Save</button>`;
+  openModal('Add Reminder',body,foot);
+}
+function editReminder(id){
+  const r=CACHE.reminders.find(r=>r.id===id);
+  openReminderForm(r.date);
+  document.getElementById('rf-title').value=r.title;
+  document.getElementById('rf-time').value=r.time||'';
+  document.getElementById('rf-repeat').value=r.repeat||'none';
+  document.getElementById('modalfoot').innerHTML=`<button class="btn ghost" onclick="closeModal()">Cancel</button><button class="btn gold" onclick="saveReminder('${id}')">Save</button>`;
+}
+async function saveReminder(id){
+  const title=document.getElementById('rf-title').value.trim();
+  if(!title){toast('Title required','err');return;}
+  const r={id:id||uid(),title,date:document.getElementById('rf-date').value,time:document.getElementById('rf-time').value,
+    repeat:document.getElementById('rf-repeat').value,done:false,createdAt:Date.now()};
+  await dbPut('reminders',r); await reloadCache('reminders');
+  closeModal(); toast('Reminder saved'); renderCalGrid(); updateBadges(); checkDueReminders();
+  if(document.getElementById('bell-panel').classList.contains('open')) renderBellPanel();
+}
+async function deleteReminder(id){
+  if(!confirm('Delete reminder?'))return;
+  await dbDel('reminders',id); await reloadCache('reminders');
+  renderCalGrid(); updateBadges();
+  if(document.getElementById('bell-panel').classList.contains('open')) renderBellPanel();
+}
+
+let shownPopups=new Set();
+function checkDueReminders(){
+  refreshBellBadge();
+  if(document.getElementById('bell-panel').classList.contains('open')) renderBellPanel();
+  const today=todayISO();
+  computeDueNotifications().forEach(r=>{
+    const key=r.id+'_'+today;
+    if(!shownPopups.has(key)){
+      shownPopups.add(key);
+      const p=document.createElement('div'); p.className='rem-popup';
+      p.innerHTML=`<div class="t">⏰ ${escapeHtml(r.title)}</div><div class="d">Reminder for today${r.time?', '+r.time:''}</div>
+        <div style="margin-top:6px;"><button class="btn sm gold">Mark done</button>
+        <button class="btn sm ghost">Dismiss</button></div>`;
+      p.querySelector('.btn.gold').addEventListener('click',()=>{ toggleReminder(r.id,today); p.remove(); });
+      p.querySelector('.btn.ghost').addEventListener('click',()=>{ dismissNotification(r.id,today); p.remove(); });
+      document.getElementById('reminder-popup-wrap').appendChild(p);
+      setTimeout(()=>p.remove(),20000);
+      if(SETTINGS.notifyEnabled && 'Notification' in window && Notification.permission==='granted'){
+        try{ new Notification(r.title,{body:'Dukaan Khata reminder'+(r.time?' — '+r.time:'')}); }catch(e){}
+      }
+    }
+  });
+}
+document.getElementById('remindbtn').addEventListener('click',(e)=>{ e.stopPropagation(); toggleBellPanel(); });
+
+/* ===================== BACKUP & RESTORE ===================== */
+RENDERERS.backup=async function(){
+  const el=document.getElementById('page-backup');
+  el.innerHTML=`
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h3>Local Backup File</h3></div>
+      <p class="hint" style="margin-top:0;">Download a full backup of all your data as a JSON file, or restore from a previous backup.</p>
+      <button class="btn gold" onclick="exportBackup()">⬇ Download Backup</button>
+      <div style="margin-top:12px;"><label>Restore from file</label><input type="file" id="restore-file" accept=".json"></div>
+      <button class="btn danger" style="margin-top:8px;" onclick="importBackup()">Restore (replaces current data)</button>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Google Drive Backup</h3></div>
+      <p class="hint" style="margin-top:0;">Needs a free Google OAuth Client ID (from Google Cloud Console → APIs & Credentials) saved in Settings. Your data goes directly from this browser to your own Drive — never through any third-party server.</p>
+      <button class="btn ghost" id="drive-connect-btn" onclick="driveConnect()">Connect Google Drive</button>
+      <button class="btn gold" id="drive-backup-btn" onclick="driveBackup()" disabled style="margin-left:8px;">Backup to Drive</button>
+      <div id="drive-status" class="hint" style="margin-top:8px;"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Data summary</h3></div>
+    <div class="fieldrow">
+      ${STORES.filter(s=>s!=='settings').map(s=>`<div class="kpi" style="padding:10px;"><div class="lbl">${s}</div><div class="val num" style="font-size:17px;">${(CACHE[s]||[]).length}</div></div>`).join('')}
+    </div>
+  </div>`;
+};
+async function exportBackup(){
+  const payload={exportedAt:new Date().toISOString(),settings:SETTINGS};
+  for(const s of Object.keys(CACHE)) payload[s]=await dbAll(s);
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`dukaan-khata-backup-${todayISO()}.json`; a.click();
+  toast('Backup downloaded');
+}
+async function importBackup(){
+  const file=document.getElementById('restore-file').files[0];
+  if(!file){toast('Choose a backup file first','err');return;}
+  if(!confirm('This will replace ALL current data with the backup file. Continue?')) return;
+  const text=await file.text();
+  let data; try{data=JSON.parse(text);}catch(e){toast('Invalid backup file','err');return;}
+  await applyImportedData(data);
+  unsavedChanges=false; updateSaveUI();
+  toast('Data restored'); navigate('dashboard'); updateBadges();
+}
+let driveToken=null;
+function driveConnect(){
+  if(!SETTINGS.driveClientId){ toast('Add your Google OAuth Client ID in Settings first','err'); navigate('settings'); return; }
+  const status=document.getElementById('drive-status');
+  status.textContent='Loading Google sign-in…';
+  const start=()=>{
+    const tokenClient=google.accounts.oauth2.initTokenClient({
+      client_id:SETTINGS.driveClientId,
+      scope:'https://www.googleapis.com/auth/drive.file',
+      callback:(resp)=>{
+        if(resp.error){ status.textContent='Connection failed: '+resp.error; return; }
+        driveToken=resp.access_token;
+        status.textContent='Connected to Google Drive.';
+        document.getElementById('drive-backup-btn').disabled=false;
+      }
+    });
+    tokenClient.requestAccessToken();
+  };
+  if(window.google && google.accounts) start();
+  else {
+    const s=document.createElement('script'); s.src='https://accounts.google.com/gsi/client'; s.onload=start;
+    s.onerror=()=>{status.textContent='Could not load Google sign-in script (check internet connection).';};
+    document.head.appendChild(s);
+  }
+}
+async function driveBackup(){
+  if(!driveToken){toast('Connect Google Drive first','err');return;}
+  const status=document.getElementById('drive-status');
+  status.textContent='Uploading backup…';
+  const payload={exportedAt:new Date().toISOString(),settings:SETTINGS};
+  for(const s of Object.keys(CACHE)) payload[s]=await dbAll(s);
+  const json=JSON.stringify(payload);
+  const boundary='dkbackup'+Date.now();
+  const metadata={name:`dukaan-khata-backup-${todayISO()}.json`,mimeType:'application/json'};
+  const body=`--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${json}\r\n--${boundary}--`;
+  try{
+    const resp=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+driveToken,'Content-Type':'multipart/related; boundary='+boundary},
+      body
+    });
+    const data=await resp.json();
+    if(data.id){ status.textContent='Backed up to Drive as "'+data.name+'".'; toast('Backed up to Google Drive'); }
+    else { status.textContent='Upload failed: '+(data.error?data.error.message:'unknown error'); }
+  }catch(e){ status.textContent='Upload failed — check connection.'; }
+}
+
+
+/* ===================== SETTINGS ===================== */
+RENDERERS.settings=async function(){
+  const el=document.getElementById('page-settings');
+  el.innerHTML=`
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head"><h3>Shop Profile</h3></div>
+      <div class="field"><label>Shop name</label><input id="st-name" value="${escapeHtml(SETTINGS.shopName||'')}"></div>
+      <div class="field"><label>GSTIN</label><input id="st-gstin" value="${escapeHtml(SETTINGS.shopGSTIN||'')}"></div>
+      <div class="field"><label>Address</label><input id="st-address" value="${escapeHtml(SETTINGS.shopAddress||'')}"></div>
+      <div class="fieldrow">
+        <div class="field"><label>Phone</label><input id="st-phone" value="${escapeHtml(SETTINGS.shopPhone||'')}"></div>
+        <div class="field"><label>State (for GST CGST/SGST vs IGST)</label><input id="st-state" value="${escapeHtml(SETTINGS.shopState||'')}"></div>
+      </div>
+      <button class="btn gold" onclick="saveShopProfile()">Save Profile</button>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Billing & Stock Preferences</h3></div>
+      <div class="fieldrow">
+        <div class="field"><label>Invoice number prefix</label><input id="st-prefix" value="${escapeHtml(SETTINGS.invoicePrefix||'INV-')}"></div>
+        <div class="field"><label>Next invoice number</label><input type="number" id="st-seq" value="${SETTINGS.invoiceSeq||1}"></div>
+      </div>
+      <div class="field"><label>Default low-stock reorder level</label><input type="number" id="st-lowstock" value="${SETTINGS.lowStockDefault||5}"></div>
+      <div class="field"><label>Expiry warning window (days)</label><input type="number" id="st-expirywarn" value="${SETTINGS.expiryWarnDays||30}"></div>
+      <button class="btn gold" onclick="saveBillingPrefs()">Save Preferences</button>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>AI Assistant</h3></div>
+      <p class="hint" style="margin-top:0;">Paste your own Anthropic API key (from console.anthropic.com). It's stored only on this device.</p>
+      <div class="field"><label>Anthropic API key</label><input id="st-apikey" type="password" value="${escapeHtml(SETTINGS.anthropicApiKey||'')}" placeholder="sk-ant-…"></div>
+      <button class="btn gold" onclick="saveApiKey()">Save Key</button>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Google Drive Backup</h3></div>
+      <p class="hint" style="margin-top:0;">Create an OAuth 2.0 Client ID (type: Web application) in Google Cloud Console and paste it here to enable Drive backup.</p>
+      <div class="field"><label>Google OAuth Client ID</label><input id="st-driveid" value="${escapeHtml(SETTINGS.driveClientId||'')}" placeholder="xxxx.apps.googleusercontent.com"></div>
+      <button class="btn gold" onclick="saveDriveId()">Save</button>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>App Security</h3></div>
+      <p class="hint" style="margin-top:0;">Adds a lock screen for this device. This is a lightweight local deterrent, not strong encryption — anyone with direct access to this browser's storage could still bypass it, so don't rely on it for highly sensitive data.</p>
+      <div class="fieldrow">
+        <div class="field"><label>User password ${SETTINGS.userPasswordHash?'— currently set':'— not set'}</label><input type="password" id="sec-userpass" placeholder="New user password"></div>
+      </div>
+      <button class="btn gold sm" onclick="setUserPassword()">Save User Password</button>
+      ${SETTINGS.userPasswordHash?'<button class="btn ghost sm" onclick="clearUserPassword()">Remove</button>':''}
+      <hr style="margin:16px 0;border:none;border-top:1px solid var(--line);">
+      <div class="fieldrow">
+        <div class="field"><label>Admin password (required to open Settings) ${SETTINGS.adminPasswordHash?'— currently set':'— not set'}</label><input type="password" id="sec-adminpass" placeholder="New admin password"></div>
+      </div>
+      <button class="btn gold sm" onclick="setAdminPassword()">Save Admin Password</button>
+      ${SETTINGS.adminPasswordHash?'<button class="btn ghost sm" onclick="clearAdminPassword()">Remove</button>':''}
+      <hr style="margin:16px 0;border:none;border-top:1px solid var(--line);">
+      <label style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--text);">
+        <input type="checkbox" id="sec-notify" style="width:auto;" ${SETTINGS.notifyEnabled?'checked':''} onchange="toggleNotifications(this.checked)">
+        Also show a browser notification when a reminder is due
+      </label>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Data</h3></div>
+      <button class="btn ghost" onclick="loadDemoData()">Load Demo Data</button>
+      <button class="btn danger" onclick="resetAllData()">Erase All Data</button>
+    </div>
+  </div>`;
+};
+async function saveShopProfile(){
+  await saveSetting('shopName',document.getElementById('st-name').value.trim());
+  await saveSetting('shopGSTIN',document.getElementById('st-gstin').value.trim());
+  await saveSetting('shopAddress',document.getElementById('st-address').value.trim());
+  await saveSetting('shopPhone',document.getElementById('st-phone').value.trim());
+  await saveSetting('shopState',document.getElementById('st-state').value.trim());
+  toast('Shop profile saved');
+}
+async function saveBillingPrefs(){
+  await saveSetting('invoicePrefix',document.getElementById('st-prefix').value.trim()||'INV-');
+  await saveSetting('invoiceSeq',Number(document.getElementById('st-seq').value||1));
+  await saveSetting('lowStockDefault',Number(document.getElementById('st-lowstock').value||5));
+  await saveSetting('expiryWarnDays',Number(document.getElementById('st-expirywarn').value||30));
+  toast('Preferences saved'); updateBadges();
+}
+async function saveApiKey(){ await saveSetting('anthropicApiKey',document.getElementById('st-apikey').value.trim()); toast('API key saved'); }
+async function saveDriveId(){ await saveSetting('driveClientId',document.getElementById('st-driveid').value.trim()); toast('Client ID saved'); }
+async function resetAllData(){
+  if(!confirm('This will permanently erase ALL shop data on this device. Continue?')) return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
+  for(const s of STORES) await dbClear(s);
+  await reloadAllCache(); SETTINGS={shopName:'My Shop',invoicePrefix:'INV-',invoiceSeq:1,lowStockDefault:5,waCountryCode:'91'};
+  appUnlocked=true; adminUnlocked=true;
+  toast('All data erased'); navigate('dashboard');
+}
+async function loadDemoData(){
+  if(!confirm('Add sample products, customers and an invoice to explore the app?')) return;
+  const p1={id:uid(),name:'Basmati Rice 5kg',sku:'RICE5',category:'Grocery',unit:'bag',stock:20,reorderLevel:5,purchasePrice:380,salePrice:450,gst:5,createdAt:Date.now()};
+  const p2={id:uid(),name:'Amul Milk 1L',sku:'MILK1',category:'Dairy',unit:'pcs',stock:3,reorderLevel:10,purchasePrice:52,salePrice:60,gst:0,createdAt:Date.now()};
+  const p3={id:uid(),name:'Parle-G Biscuit',sku:'BISC1',category:'Snacks',unit:'pcs',stock:60,reorderLevel:15,purchasePrice:8,salePrice:10,gst:18,createdAt:Date.now()};
+  for(const p of [p1,p2,p3]) await dbPut('products',p);
+  const c1={id:uid(),name:'Ramesh Kumar',phone:'9876543210',address:'MG Road',gstin:'',state:SETTINGS.shopState||'',createdAt:Date.now()};
+  await dbPut('customers',c1);
+  await reloadCache('products'); await reloadCache('customers');
+  const items=[{productId:p1.id,name:p1.name,qty:2,rate:p1.salePrice,gst:p1.gst},{productId:p3.id,name:p3.name,qty:5,rate:p3.salePrice,gst:p3.gst}];
+  const sub=items.reduce((a,i)=>a+i.qty*i.rate,0), tax=items.reduce((a,i)=>a+i.qty*i.rate*(i.gst/100),0);
+  const inv={id:uid(),number:nextInvoiceNumber(),date:todayISO(),customerId:c1.id,items,subTotal:sub,taxTotal:tax,discount:0,grandTotal:sub+tax,status:'udhar',createdAt:Date.now()};
+  await dbPut('invoices',inv);
+  await dbPut('khataTx',{id:uid(),customerId:c1.id,date:inv.date,type:'udhar',amount:inv.grandTotal,note:'Invoice '+inv.number,invoiceId:inv.id,createdAt:Date.now()});
+  await saveSetting('invoiceSeq',(SETTINGS.invoiceSeq||1)+1);
+  await reloadAllCache();
+  toast('Demo data added'); navigate('dashboard');
+}
+
+/* ===================== INIT ===================== */
+document.getElementById('btn-save').addEventListener('click',()=>saveToFile(false,false));
+document.getElementById('btn-saveas').addEventListener('click',()=>saveToFile(true,false));
+document.getElementById('lockbtn').addEventListener('click',()=>lockApp());
+document.getElementById('btn-import').addEventListener('click',()=>importFromFile());
+document.getElementById('btn-export').addEventListener('click',()=>openExportModal());
+window.addEventListener('beforeunload',(e)=>{ if(unsavedChanges){ e.preventDefault(); e.returnValue=''; } });
+
+async function init(){
+  await openDB();
+  await loadSettings();
+  if(SETTINGS.userPasswordHash){
+    document.getElementById('login-overlay').classList.add('open');
+    setTimeout(()=>{const el=document.getElementById('login-pass'); if(el) el.focus();},50);
+  } else {
+    appUnlocked=true;
+  }
+  await reloadAllCache();
+  await loadFileHandle();
+  await navigate('dashboard');
+  updateBadges();
+  checkDueReminders();
+  setInterval(checkDueReminders,20000);
+  setInterval(()=>{ if(fileHandle && unsavedChanges) saveToFile(false,true); },5*60*1000);
+}
+init();
+
+</script>
+</body>
+</html>
